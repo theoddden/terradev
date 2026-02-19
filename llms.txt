@@ -3,14 +3,14 @@
 
 ## 🏷️ BASIC METADATA
 name: Terradev CLI
-version: 2.9.2
+version: 2.9.3
 description: BYOAPI: Cross-cloud GPU provisioning and cost optimization platform
 author: theoddden
 license: BUSL-1.1
 repository: https://github.com/theoddden/terradev
 homepage: https://theodden.github.io
 documentation: https://github.com/theoddden/terradev/blob/main/README.md
-pypi: https://pypi.org/project/terradev-cli/2.9.2/
+pypi: https://pypi.org/project/terradev-cli/2.9.3/
 docker: https://hub.docker.com/r/theoddden/terradev
 
 ## 🎯 PRIMARY PURPOSE

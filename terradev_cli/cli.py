@@ -111,6 +111,24 @@ class TerradevAPI:
         if "inference_endpoints" not in self.usage:
             self.usage["inference_endpoints"] = []
 
+    def is_first_time_user(self) -> bool:
+        """Check if this is a first-time user with no configured credentials"""
+        # Check if credentials file exists and has any content
+        if not self.credentials_file.exists():
+            return True
+        
+        # Check if credentials are empty or only contain default/placeholder values
+        if not self.credentials or len(self.credentials) == 0:
+            return True
+        
+        # Check if all credentials are still placeholder values
+        placeholder_patterns = ['your_', 'example_', 'test_', 'placeholder_', 'xxx']
+        for key, value in self.credentials.items():
+            if value and not any(pattern in value.lower() for pattern in placeholder_patterns):
+                return False  # Found a real credential
+        
+        return True  # All credentials appear to be placeholders
+
     # Embedded Ed25519 public key for tier token verification
     _TIER_VERIFY_KEY_B64 = "4lJY9uWYGfx2hZkJ6N4DO5plErRX+J/HD97Tx+Xrvms="
 
@@ -449,11 +467,243 @@ class TerradevAPI:
     async def get_crusoe_quotes(self, gpu_type: str):
         return await self._get_provider_quotes('crusoe', gpu_type)
 
+def run_interactive_onboarding(api: TerradevAPI):
+    """Interactive onboarding flow for first-time users"""
+    import sys
+    
+    # Beautiful welcome screen
+    print("\n" + "="*70)
+    print("WELCOME TO TERRADEV CLI".center(70))
+    print("="*70)
+    print("\nYour Cross-Cloud GPU Optimization Platform")
+    print("Save 30-60% on GPU compute costs across 9+ cloud providers")
+    print("Real-time pricing + automated provisioning")
+    print("\n" + "="*70)
+    
+    # Show what we'll set up
+    print("\nWe'll configure API keys for these providers:")
+    providers_to_show = [
+        ('runpod', 'RunPod', 'Cheapest spot GPUs'),
+        ('vastai', 'Vast.ai', 'Competitive spot market'),
+        ('aws', 'AWS', 'Enterprise cloud'),
+        ('gcp', 'Google Cloud', 'ML-optimized'),
+        ('azure', 'Azure', 'Enterprise integration'),
+        ('lambda_labs', 'Lambda Labs', 'Fast provisioning'),
+        ('tensordock', 'TensorDock', 'Budget-friendly'),
+        ('oracle', 'Oracle Cloud', 'Reliable infrastructure'),
+        ('crusoe', 'Crusoe Cloud', 'Sustainable computing')
+    ]
+    
+    for i, (key, name, desc) in enumerate(providers_to_show, 1):
+        print(f"   {i:2d}. {name:<15} - {desc}")
+    
+    print(f"\nTip: You can start with just 1-2 providers and add more later!")
+    print("All keys are stored locally in ~/.terradev/credentials.json")
+    
+    # Ask if they want to proceed
+    print("\n" + "-"*70)
+    proceed = click.confirm('Ready to set up your cloud providers?', default=True)
+    
+    if not proceed:
+        print("\nNo problem! You can configure anytime with:")
+        print("   terradev configure")
+        print("   terradev configure --provider runpod")
+        print("\nQuick start: Add just RunPod for cheapest spot GPUs")
+        return
+    
+    print("\nLet's set up your providers! (Press Enter to skip any provider)\n")
+    
+    # Provider configurations with helpful info
+    provider_configs = {
+        'runpod': {
+            'name': 'RunPod',
+            'key_name': 'API Key',
+            'help': 'Get from: https://runpod.io/console/settings/api-keys',
+            'example': 'rpa_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            'env_var': 'RUNPOD_API_KEY',
+            'why': 'Cheapest spot GPUs, perfect for training'
+        },
+        'vastai': {
+            'name': 'Vast.ai',
+            'key_name': 'API Key',
+            'help': 'Get from: https://console.vast.ai/api-keys',
+            'example': 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            'env_var': 'VASTAI_API_KEY',
+            'why': 'Competitive spot market with great availability'
+        },
+        'aws': {
+            'name': 'AWS',
+            'key_name': 'Access Key ID',
+            'help': 'Get from: AWS IAM console → Users → Security credentials',
+            'example': 'AKIAIOSFODNN7EXAMPLE',
+            'env_var': 'AWS_ACCESS_KEY_ID',
+            'why': 'Enterprise cloud, reliable on-demand instances'
+        },
+        'gcp': {
+            'name': 'Google Cloud',
+            'key_name': 'Service Account JSON',
+            'help': 'Get from: GCP Console → IAM & Admin → Service Accounts',
+            'example': 'path/to/service-account.json',
+            'env_var': 'GOOGLE_APPLICATION_CREDENTIALS',
+            'why': 'ML-optimized A100/H100 instances'
+        },
+        'azure': {
+            'name': 'Azure',
+            'key_name': 'Client ID',
+            'help': 'Get from: Azure Portal → App registrations',
+            'example': 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+            'env_var': 'AZURE_CLIENT_ID',
+            'why': 'Enterprise integration, ND-series GPUs'
+        },
+        'lambda_labs': {
+            'name': 'Lambda Labs',
+            'key_name': 'API Key',
+            'help': 'Get from: Lambda Labs dashboard → API Keys',
+            'example': 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            'env_var': 'LAMBDA_API_KEY',
+            'why': 'Fast provisioning, good for inference'
+        },
+        'tensordock': {
+            'name': 'TensorDock',
+            'key_name': 'API Key',
+            'help': 'Get from: TensorDock dashboard → API',
+            'example': 'td_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            'env_var': 'TENSORDOCK_API_KEY',
+            'why': 'Budget-friendly, good for experiments'
+        },
+        'oracle': {
+            'name': 'Oracle Cloud',
+            'key_name': 'API Key',
+            'help': 'Get from: Oracle Cloud Console → Identity → Users → API Keys',
+            'example': 'ocid1.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            'env_var': 'OCI_API_KEY',
+            'why': 'Reliable infrastructure, competitive pricing'
+        },
+        'crusoe': {
+            'name': 'Crusoe Cloud',
+            'key_name': 'Access Key',
+            'help': 'Get from: Crusoe dashboard → API Keys',
+            'example': 'crusoe_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            'env_var': 'CRUSOE_ACCESS_KEY',
+            'why': 'Sustainable computing, unique GPU options'
+        }
+    }
+    
+    # Track what we configured
+    configured_providers = []
+    
+    # Interactive setup for each provider
+    for provider_key, config in provider_configs.items():
+        print(f"\n{'='*60}")
+        print(f"Setting up {config['name']}")
+        print(f"   {config['why']}")
+        print(f"   Help: {config['help']}")
+        print(f"   Environment variable: {config['env_var']}")
+        
+        # Check if already configured
+        existing_value = api.credentials.get(f"{provider_key}_api_key") or api.credentials.get(f"{provider_key}_access_key_id")
+        if existing_value and not any(pattern in existing_value.lower() for pattern in ['your_', 'example_', 'test_', 'placeholder_', 'xxx']):
+            print(f"   Already configured!")
+            configured_providers.append(provider_key)
+            continue
+        
+        # Ask to configure this provider
+        configure_this = click.confirm(f"   Configure {config['name']}?", default=False)
+        
+        if not configure_this:
+            print(f"   Skipped {config['name']}")
+            continue
+        
+        # Get the API key
+        if provider_key == 'gcp':
+            # Special handling for GCP JSON file
+            print(f"\n   Enter path to your service account JSON file:")
+            print(f"   Example: {config['example']}")
+            file_path = click.prompt(f"   {config['key_name']}", default='', show_default=False)
+            
+            if file_path and file_path.strip():
+                # Validate file exists
+                if os.path.exists(file_path):
+                    api.credentials['gcp_project_id'] = click.prompt("   GCP Project ID", default='')
+                    api.credentials['gcp_credentials_file'] = file_path
+                    configured_providers.append(provider_key)
+                    print(f"   {config['name']} configured!")
+                else:
+                    print(f"   File not found: {file_path}")
+            else:
+                print(f"   Skipped {config['name']}")
+        
+        elif provider_key == 'aws':
+            # AWS needs multiple keys
+            print(f"\n   AWS requires both Access Key ID and Secret Access Key")
+            access_key = click.prompt(f"   {config['key_name']}", default='', hide_input=True, show_default=False)
+            if access_key and access_key.strip():
+                secret_key = click.prompt(f"   Secret Access Key", default='', hide_input=True, show_default=False)
+                if secret_key and secret_key.strip():
+                    api.credentials['aws_access_key_id'] = access_key
+                    api.credentials['aws_secret_access_key'] = secret_key
+                    configured_providers.append(provider_key)
+                    print(f"   {config['name']} configured!")
+                else:
+                    print(f"   Skipped {config['name']} (missing secret)")
+            else:
+                print(f"   Skipped {config['name']}")
+        
+        else:
+            # Single key providers
+            key_value = click.prompt(f"   {config['key_name']}", default='', hide_input=True, show_default=False)
+            
+            if key_value and key_value.strip():
+                # Store with appropriate key name
+                if provider_key == 'aws':
+                    api.credentials['aws_access_key_id'] = key_value
+                elif provider_key == 'gcp':
+                    api.credentials['gcp_project_id'] = key_value
+                else:
+                    api.credentials[f"{provider_key}_api_key"] = key_value
+                
+                configured_providers.append(provider_key)
+                print(f"   {config['name']} configured!")
+            else:
+                print(f"   Skipped {config['name']}")
+    
+    # Save credentials
+    if configured_providers:
+        api.save_credentials()
+        print(f"\n{'='*70}")
+        print(f"SUCCESS! Configured {len(configured_providers)} providers:")
+        for provider in configured_providers:
+            print(f"   {provider_configs[provider]['name']}")
+    else:
+        print(f"\n{'='*70}")
+        print("No providers configured. You can add them anytime with:")
+        print("   terradev configure --provider runpod")
+    
+    # Next steps
+    print(f"\nNEXT STEPS:")
+    if configured_providers:
+        print("   1. Try it out: terradev quote -g A100")
+        print("   2. Provision GPU: terradev provision -g A100 --duration 4")
+        print("   3. Check status: terradev status")
+    else:
+        print("   1. Configure at least one provider:")
+        print("      terradev configure --provider runpod")
+        print("   2. Then try: terradev quote -g A100")
+    
+    print(f"\nNEED HELP?")
+    print("   Documentation: https://github.com/theoddden/terradev")
+    print("   Support: team@terradev.com")
+    print("   Quick start guide: https://github.com/theoddden/terradev#quick-start")
+    
+    print(f"\nWELCOME TO TERRADEV! Happy GPU hunting!")
+    print("="*70 + "\n")
+
 @click.group()
-@click.version_option(version="2.9.2", prog_name="Terradev CLI")
+@click.version_option(version="2.9.3", prog_name="Terradev CLI")
 @click.option('--config', '-c', help='Configuration file path')
 @click.option('--verbose', '-v', is_flag=True, help='Verbose output')
-def cli(config, verbose):
+@click.option('--skip-onboarding', is_flag=True, help='Skip first-time setup')
+def cli(config, verbose, skip_onboarding):
     """
     Terradev CLI - Cross-Cloud Compute Optimization Platform
     
@@ -464,7 +714,22 @@ def cli(config, verbose):
     Research+ Tier: 80 provisions/month, 8 servers, 1 seat, inference ($49.99/month)
     Enterprise Tier: Unlimited provisions, 32 servers, 5 seats, full provenance ($299.99/month)
     """
-    pass
+    # Check for first-time user and trigger onboarding
+    if not skip_onboarding:
+        api = TerradevAPI()
+        if api.is_first_time_user():
+            run_interactive_onboarding(api)
+
+@cli.command()
+@click.option('--force', is_flag=True, help='Force onboarding even if already configured')
+def onboarding(force):
+    """Run the interactive onboarding flow"""
+    api = TerradevAPI()
+    if force or api.is_first_time_user():
+        run_interactive_onboarding(api)
+    else:
+        print("✅ You're already set up! Use --force to re-run onboarding.")
+        print("💡 Or configure individual providers with: terradev configure --provider <name>")
 
 @cli.command()
 @click.option('--tier', '-t', type=click.Choice(['research_plus', 'enterprise']),

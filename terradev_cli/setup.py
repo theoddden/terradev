@@ -21,7 +21,7 @@ if requirements_file.exists():
 
 setup(
     name="terradev-cli",
-    version="2.9.2",
+    version="2.9.3",
     author="Terradev Team",
     author_email="team@terradev.com",
     description="Real multi-cloud GPU arbitrage — provision across 9 clouds in parallel",
@@ -37,6 +37,10 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.9",
+        "Framework :: Jupyter",
+        "Framework :: Jupyter :: JupyterLab",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: System :: Distributed Computing",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
