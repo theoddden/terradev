@@ -243,9 +243,9 @@ class MandatoryTelemetryClient:
     def _get_cli_version(self) -> str:
         """Get CLI version"""
         try:
-            return "2.9.0"
+            return "2.9.1"
         except:
-            return "2.9.0"
+            return "2.9.1"
     
     def _check_license_compliance(self):
         """Check license compliance and enforce tier limits"""

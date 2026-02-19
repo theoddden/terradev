@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "terradev-cli"
-version = "2.9.0"
+version = "2.9.1"
 description = "BYOAPI: Cross-cloud GPU provisioning with HuggingFace Spaces smart deployment"
 readme = "README.md"
 license = {text = "BUSL-1.1"}
@@ -18,25 +18,28 @@ keywords = [
     "cloud",
     "provisioning", 
     "gpu",
-    "compute",
     "multi-cloud",
+    "arbitrage",
     "aws",
     "gcp",
     "azure",
-    "kubernetes",
-    "devops",
-    "infrastructure",
-    "automation",
+    "runpod",
+    "vastai",
+    "machine-learning",
     "cost-optimization",
     "parallel",
-    "egress",
-    "rate-limiting",
-    "arbitrage",
+    "langchain",
+    "langgraph",
+    "sglang",
+    "wandb",
+    "mlflow",
+    "analytics",
+    "setup",
+    "conversion",
     "telemetry",
     "real-time",
     "monitoring",
     "dashboard",
-    "analytics",
     "huggingface",
     "huggingface-spaces",
     "gradio",
@@ -48,11 +51,21 @@ keywords = [
     "smart-templates",
     "hardware-optimization",
     "model-deployment",
-    "ai",
-    "ml",
-    "deep-learning",
-    "mlops",
-    "model-serving"
+    "inference",
+    "training",
+    "byoapi",
+    "terraform",
+    "kubernetes",
+    "helm",
+    "karpenter",
+    "opa",
+    "prometheus",
+    "grafana",
+    "ray",
+    "vllm",
+    "ollama",
+    "dvc",
+    "data-version-control"
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -61,7 +74,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: System :: Systems Administration",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
-    "License :: OSI Approved :: MIT License",
+    "License :: Other/Proprietary License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9", 

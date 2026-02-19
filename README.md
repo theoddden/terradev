@@ -1,8 +1,12 @@
-# Terradev CLI v2.9.0
+# Terradev CLI v2.9.1
 
 **BYOAPI: Cross-cloud GPU provisioning and cost optimization platform.**
 
 **License:** Business Source License 1.1 (BUSL-1.1) - Free for evaluation, testing, and internal business use.
+
+**🔗 GitHub Repository:** https://github.com/theoddden/terradev
+
+**📄 License Details:** https://github.com/theoddden/terradev?tab=License-1-ov-file
 
 Developers overpay by only accessing single-cloud workflows or using sequential provisioning with inefficient egress + rate-limiting.
 

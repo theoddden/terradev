@@ -21,19 +21,19 @@ if requirements_file.exists():
 
 setup(
     name="terradev-cli",
-    version="1.2.0",
+    version="2.9.1",
     author="Terradev Team",
     author_email="team@terradev.com",
     description="Real multi-cloud GPU arbitrage — provision across 9 clouds in parallel",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/terradev/terradev-cli",
+    url="https://github.com/theoddden/terradev",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Intended Audience :: System Administrators",
-        "License :: OSI Approved :: MIT License",
+        "License :: Other/Proprietary License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.9",

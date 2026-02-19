@@ -450,7 +450,7 @@ class TerradevAPI:
         return await self._get_provider_quotes('crusoe', gpu_type)
 
 @click.group()
-@click.version_option(version="2.9.0", prog_name="Terradev CLI")
+@click.version_option(version="2.9.1", prog_name="Terradev CLI")
 @click.option('--config', '-c', help='Configuration file path')
 @click.option('--verbose', '-v', is_flag=True, help='Verbose output')
 def cli(config, verbose):
