@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "terradev-cli"
-version = "2.9.1"
+version = "2.9.2"
 description = "BYOAPI: Cross-cloud GPU provisioning with HuggingFace Spaces smart deployment"
 readme = "README.md"
 license = {text = "BUSL-1.1"}

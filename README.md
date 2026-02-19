@@ -1,4 +1,4 @@
-# Terradev CLI v2.9.1
+# Terradev CLI v2.9.2
 
 **BYOAPI: Cross-cloud GPU provisioning and cost optimization platform.**
 
@@ -305,15 +305,12 @@ pip install terradev-jupyter
     TERRADEV_RUNPOD_KEY: ${{ secrets.RUNPOD_API_KEY }}
 ```
 
-<<<<<<< HEAD
 ### Docker (One-Command Workloads)
 
 ```bash
 terradev run --gpu A100 --image pytorch/pytorch:latest -c "python train.py"
 terradev run --gpu H100 --image vllm/vllm-openai:latest --keep-alive --port 8000
 ```
-=======
->>>>>>> 658c96a2ec31e6765baf5a2e8bffcc2b2e59e36f
 
 ## Requirements
 
@@ -322,4 +319,4 @@ terradev run --gpu H100 --image vllm/vllm-openai:latest --keep-alive --port 8000
 
 ## License
 
-MIT License - see LICENSE file for details
+Business Source License 1.1 (BUSL-1.1) - see LICENSE file for details
