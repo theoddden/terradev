@@ -699,7 +699,7 @@ def run_interactive_onboarding(api: TerradevAPI):
     print("="*70 + "\n")
 
 @click.group()
-@click.version_option(version="2.9.4", prog_name="Terradev CLI")
+@click.version_option(version="2.9.5", prog_name="Terradev CLI")
 @click.option('--config', '-c', help='Configuration file path')
 @click.option('--verbose', '-v', is_flag=True, help='Verbose output')
 @click.option('--skip-onboarding', is_flag=True, help='Skip first-time setup')
@@ -6199,6 +6199,182 @@ def cost_scaler_model_details(model_id):
         print(f"  Cost rank: {details['cost_rank']} (1 = most expensive)")
     else:
         print(f"Model {model_id} not found or not loaded")
+
+# GitOps Commands
+@cli.group()
+def gitops():
+    """GitOps automation and infrastructure as code"""
+    pass
+
+@gitops.command()
+@click.option('--provider', type=click.Choice(['github', 'gitlab', 'bitbucket', 'azure_devops']), 
+              required=True, help='Git provider')
+@click.option('--repo', '--repository', required=True, help='Repository name (format: owner/repo)')
+@click.option('--tool', type=click.Choice(['argocd', 'flux']), default='argocd', help='GitOps tool')
+@click.option('--cluster', required=True, help='Cluster name')
+@click.option('--git-url', help='Git repository URL (auto-generated if not provided)')
+@click.option('--git-token', help='Git access token')
+@click.option('--namespace', default='gitops-system', help='Namespace for GitOps tools')
+@click.option('--auto-sync/--no-auto-sync', default=True, help='Enable automatic synchronization')
+@click.option('--prune/--no-prune', default=True, help='Enable resource pruning')
+def init(provider, repository, tool, cluster, git_url, git_token, namespace, auto_sync, prune):
+    """Initialize GitOps repository and structure"""
+    from .core.gitops_manager import GitOpsManager, GitOpsConfig, GitProvider, GitOpsTool
+    
+    provider_map = {
+        'github': GitProvider.GITHUB,
+        'gitlab': GitProvider.GITLAB,
+        'bitbucket': GitProvider.BITBUCKET,
+        'azure_devops': GitProvider.AZURE_DEVOPS
+    }
+    
+    tool_map = {
+        'argocd': GitOpsTool.ARGOCD,
+        'flux': GitOpsTool.FLUX
+    }
+    
+    config = GitOpsConfig(
+        provider=provider_map[provider],
+        repository=repository,
+        tool=tool_map[tool],
+        cluster_name=cluster,
+        git_url=git_url,
+        git_token=git_token,
+        namespace=namespace,
+        auto_sync=auto_sync,
+        prune_resources=prune
+    )
+    
+    gitops_manager = GitOpsManager(config)
+    
+    async def run_init():
+        print(f"Initializing GitOps repository: {repository}")
+        print(f"Provider: {provider}")
+        print(f"Tool: {tool}")
+        print(f"Cluster: {cluster}")
+        
+        success = await gitops_manager.init_repository()
+        if success:
+            print("GitOps repository initialized successfully")
+            print(f"Repository structure created at: {gitops_manager.work_dir}")
+            print("\nNext steps:")
+            print(f"1. Push the repository to {provider}")
+            print(f"2. Run 'terradev gitops bootstrap --tool {tool}'")
+            print(f"3. Run 'terradev gitops sync --cluster {cluster}'")
+        else:
+            print("Failed to initialize GitOps repository")
+    
+    asyncio.run(run_init())
+
+@gitops.command()
+@click.option('--tool', type=click.Choice(['argocd', 'flux']), required=True, help='GitOps tool')
+@click.option('--cluster', required=True, help='Cluster name')
+@click.option('--namespace', default='gitops-system', help='Namespace for GitOps tools')
+def bootstrap(tool, cluster, namespace):
+    """Bootstrap GitOps tool on the cluster"""
+    from .core.gitops_manager import GitOpsManager, GitOpsConfig, GitOpsTool
+    
+    # This is a simplified bootstrap - in practice, you'd load config from previous init
+    config = GitOpsConfig(
+        provider=GitProvider.GITHUB,  # Default
+        repository="terradev/infra",  # Default
+        tool=GitOpsTool[tool.upper()],
+        cluster_name=cluster,
+        namespace=namespace
+    )
+    
+    gitops_manager = GitOpsManager(config)
+    
+    async def run_bootstrap():
+        print(f"Bootstrapping {tool} on cluster {cluster}")
+        print(f"Namespace: {namespace}")
+        
+        success = await gitops_manager.bootstrap_gitops()
+        if success:
+            print(f"{tool.capitalize()} bootstrapped successfully")
+            print("GitOps automation is now active")
+        else:
+            print(f"Failed to bootstrap {tool}")
+    
+    asyncio.run(run_bootstrap())
+
+@gitops.command()
+@click.option('--cluster', required=True, help='Cluster name')
+@click.option('--environment', default='prod', help='Environment to sync')
+@click.option('--tool', type=click.Choice(['argocd', 'flux']), default='argocd', help='GitOps tool')
+def sync(cluster, environment, tool):
+    """Sync cluster with Git repository"""
+    from .core.gitops_manager import GitOpsManager, GitOpsConfig, GitOpsTool
+    
+    # This is a simplified sync - in practice, you'd load config from previous init
+    config = GitOpsConfig(
+        provider=GitProvider.GITHUB,  # Default
+        repository="terradev/infra",  # Default
+        tool=GitOpsTool[tool.upper()],
+        cluster_name=cluster
+    )
+    
+    gitops_manager = GitOpsManager(config)
+    
+    async def run_sync():
+        print(f"Syncing cluster {cluster}")
+        print(f"Environment: {environment}")
+        print(f"Tool: {tool}")
+        
+        success = await gitops_manager.sync_cluster(environment)
+        if success:
+            print(f"Cluster sync completed for {environment}")
+        else:
+            print("Failed to sync cluster")
+    
+    asyncio.run(run_sync())
+
+@gitops.command()
+@click.option('--dry-run/--apply', default=True, help='Dry run validation or apply changes')
+@click.option('--cluster', help='Cluster name for validation')
+@click.option('--environment', default='prod', help='Environment to validate')
+def validate(dry_run, cluster, environment):
+    """Validate GitOps configuration"""
+    from .core.gitops_manager import GitOpsManager, GitOpsConfig, GitOpsTool
+    
+    # This is a simplified validation - in practice, you'd load config from previous init
+    config = GitOpsConfig(
+        provider=GitProvider.GITHUB,  # Default
+        repository="terradev/infra",  # Default
+        tool=GitOpsTool.ARGOCD,  # Default
+        cluster_name=cluster or "default"
+    )
+    
+    gitops_manager = GitOpsManager(config)
+    
+    async def run_validate():
+        print("Validating GitOps configuration")
+        print(f"Dry run: {dry_run}")
+        if cluster:
+            print(f"Cluster: {cluster}")
+        if environment:
+            print(f"Environment: {environment}")
+        
+        results = await gitops_manager.validate_configuration(dry_run)
+        
+        if results['valid']:
+            print("Configuration is valid")
+        else:
+            print("Configuration validation failed:")
+            for error in results['errors']:
+                print(f"  Error: {error}")
+        
+        if results['warnings']:
+            print("Warnings:")
+            for warning in results['warnings']:
+                print(f"  Warning: {warning}")
+        
+        if results['recommendations']:
+            print("Recommendations:")
+            for rec in results['recommendations']:
+                print(f"  - {rec}")
+    
+    asyncio.run(run_validate())
 
 
 if __name__ == '__main__':

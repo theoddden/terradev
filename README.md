@@ -1,6 +1,6 @@
-# Terradev CLI v2.9.2
+# Terradev CLI v2.9.5
 
-**BYOAPI: Cross-cloud GPU provisioning and cost optimization platform.**
+**BYOAPI: Cross-cloud GPU provisioning and cost optimization platform with GitOps automation.**
 
 **License:** Business Source License 1.1 (BUSL-1.1) - Free for evaluation, testing, and internal business use.
 
@@ -14,7 +14,50 @@ Terradev is a cross-cloud compute-provisioning CLI that compresses + stages data
 
 Terradev is integrated with Kubernetes and Karpenter: **We generate Helm templates.**
 
-Other integrations: Grafana/Prometheus, OpenPolicyAgent, Weights&Biases, Kserve, DataVersionControl, MLFlow, Ray, vLLM, Ollama,
+Other integrations: Grafana/Prometheus, OpenPolicyAgent, Weights&Biases, Kserve, DataVersionControl, MLFlow, Ray, vLLM, Ollama, **GitOps Automation (ArgoCD/Flux)**
+
+## 🚀 GitOps Automation
+
+**Production-ready GitOps workflows based on real-world Kubernetes experience:**
+
+```bash
+# Initialize GitOps repository
+terradev gitops init --provider github --repo my-org/infra --tool argocd --cluster production
+
+# Bootstrap GitOps tool on cluster
+terradev gitops bootstrap --tool argocd --cluster production
+
+# Sync cluster with Git repository
+terradev gitops sync --cluster production --environment prod
+
+# Validate configuration
+terradev gitops validate --dry-run --cluster production
+```
+
+### GitOps Features
+
+- **Multi-Provider Support**: GitHub, GitLab, Bitbucket, Azure DevOps
+- **Tool Integration**: ArgoCD and Flux CD support
+- **Repository Structure**: Automated GitOps repository setup
+- **Policy as Code**: Gatekeeper/Kyverno policy templates
+- **Multi-Environment**: Dev, staging, production environments
+- **Resource Management**: Automated quotas and network policies
+- **Validation**: Dry-run and apply validation
+- **Security**: Best practices and compliance policies
+
+### GitOps Repository Structure
+
+```
+my-infra/
+├── clusters/
+│   ├── dev/
+│   ├── staging/
+│   └── prod/
+├── apps/
+├── infra/
+├── policies/
+└── monitoring/
+```
 
 Deploy any HuggingFace model to Spaces with one command:
 

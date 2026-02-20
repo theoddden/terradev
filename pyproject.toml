@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "terradev-cli"
-version = "2.9.4"
-description = "BYOAPI: Cross-cloud GPU provisioning with HuggingFace Spaces smart deployment"
+version = "2.9.5"
+description = "Cross-cloud GPU provisioning with GitOps automation and HuggingFace Spaces deployment"
 readme = "README.md"
 license = {text = "BUSL-1.1"}
 authors = [
@@ -28,6 +28,11 @@ keywords = [
     "machine-learning",
     "cost-optimization",
     "parallel",
+    "gitops",
+    "argocd",
+    "flux",
+    "kubernetes",
+    "infrastructure-as-code",
     "langchain",
     "langgraph",
     "sglang",

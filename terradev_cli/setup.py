@@ -21,10 +21,10 @@ if requirements_file.exists():
 
 setup(
     name="terradev-cli",
-    version="2.9.4",
+    version="2.9.5",
     author="Terradev Team",
     author_email="team@terradev.com",
-    description="Real multi-cloud GPU arbitrage — provision across 9 clouds in parallel",
+    description="Cross-cloud GPU provisioning with GitOps automation and HuggingFace Spaces deployment",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/theoddden/terradev",
