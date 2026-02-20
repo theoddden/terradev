@@ -1,89 +1,16 @@
 # Terradev CLI v2.9.8
 
-**BYOAPI: Cross-cloud GPU provisioning and cost optimization platform with GitOps automation and InferX serverless inference.**
+BYOAPI: Cross-cloud GPU provisioning and cost optimization platform with GitOps automation.
 
-**License:** Business Source License 1.1 (BUSL-1.1) - Free for evaluation, testing, and internal business use.
-
-**GitHub Repository:** https://github.com/theoddden/terradev
-
-**License Details:** https://github.com/theoddden/terradev?tab=License-1-ov-file
+## Why Terradev?
 
 Developers overpay by only accessing single-cloud workflows or using sequential provisioning with inefficient egress + rate-limiting.
 
-Terradev is a cross-cloud compute-provisioning CLI that compresses + stages datasets, provisions optimal instances + nodes, and deploys **3-5x faster** than sequential provisioning.
-
-## Solving the Bursty Long-Tail Workload Challenge
-
-> *"For bursty long-tail workloads the real answer isn't optimizing a single H100, it's about not committing to a single H100 in the first place."* - Reddit Discussion
-
-Terradev addresses the exact challenges discussed in the Reddit thread about bursty long-tail workloads:
-
-### **Parallel Multi-Cloud Provisioning**
-```bash
-# Query spot availability across ALL providers in parallel
-terradev quote --gpu-type A100 --providers aws,gcp,azure,runpod,lambdalabs
-
-# Provision cheapest available GPU instantly
-terradev provision --model llama2-7b --auto-select --spot-only
-
-# Result: 2-5 second cloud selection vs 30-60 second sequential
-```
-
-**Solves**: *"Making multi-cloud provisioning fast enough that it doesn't add latency"*
-
-### **Strategic Pre-Staging Across Regions**
-```bash
-# Pre-stage models in 3-4 strategic regions
-terradev stage --model llama2-7b --regions us-west-2,us-east-1,eu-west-1,ap-southeast-1
-
-# Automatic regional failover
-terradev deploy --model llama2-7b --auto-region --cost-optimized
-
-# Result: Instant model availability in cheapest region
-```
-
-**Solves**: *"How are you handling model weight locality across providers?"*
-
-### **InferX Serverless Integration - <2s Cold Starts**
-```bash
-# Deploy to InferX with snapshot technology
-terradev inferx deploy --model llama2-7b --gpu-type A100 --snapshot-enabled
-
-# Result: <2s cold starts, 90% GPU utilization, 30+ models per GPU
-```
-
-**Solves**: *"We've been working on restoring an initialized GPU snapshot instead of rebuilding context from scratch"*
-
-### **GitOps Automation with Manifest Cache**
-```bash
-# Initialize GitOps with manifest cache
-terradev gitops init --provider github --repo my-org/infra --tool argocd
-
-# Deploy with cached manifests and drift detection
-terradev up --job my-training --gpu-type A100 --gpu-count 4 --fix-drift
-
-# Result: Instant deployments, automatic drift correction
-```
-
-**Solves**: *"Parallel provisioning with IaC can be quite powerful when paired with smart context caching"*
-
-### **Cost-Optimized Burst Handling**
-```bash
-# Analyze and optimize bursty workload costs
-terradev inferx optimize --tier economy --implement
-
-# Result: 70% cost reduction, no warm pool baseline costs
-```
-
-**Solves**: *"The real answer isn't optimizing a single H100, it's about not committing to a single H100 in the first place"*
-
----
-
-**Other integrations**: Grafana/Prometheus, OpenPolicyAgent, Weights&Biases, Kserve, DataVersionControl, MLFlow, Ray, vLLM, Ollama, **GitOps Automation (ArgoCD/Flux)**
+Terradev is a cross-cloud compute-provisioning CLI that compresses + stages datasets, provisions optimal instances + nodes, and deploys 3-5x faster than sequential provisioning.
 
 ## GitOps Automation
 
-**Production-ready GitOps workflows based on real-world Kubernetes experience:**
+Production-ready GitOps workflows based on real-world Kubernetes experience:
 
 ```bash
 # Initialize GitOps repository
@@ -121,8 +48,6 @@ my-infra/
 ├── policies/
 └── monitoring/
 ```
-
----
 
 ## HuggingFace Spaces Integration
 
@@ -166,8 +91,6 @@ terradev hf-space my-embeddings --model-id sentence-transformers/all-MiniLM-L6-v
 terradev hf-space my-image --model-id runwayml/stable-diffusion-v1-5 --template image
 ```
 
----
-
 ## Installation
 
 ```bash
@@ -180,29 +103,7 @@ pip install terradev-cli[hf]        # HuggingFace Spaces deployment
 pip install terradev-cli[all]        # All cloud providers + ML services + HF Spaces
 ```
 
----
-
 ## Quick Start
-
-### **For Bursty Long-Tail Workloads (Reddit Thread Solution)**
-
-```bash
-# 1. Configure multiple providers for parallel provisioning
-terradev configure --provider runpod
-terradev configure --provider aws
-terradev configure --provider vastai
-
-# 2. Deploy to InferX for <2s cold starts
-terradev inferx configure --api-key YOUR_INFERX_KEY
-terradev inferx deploy --model llama2-7b --gpu-type A100 --snapshot-enabled
-
-# 3. Set up GitOps for automated deployments
-terradev gitops init --provider github --repo my-org/infra --tool argocd
-
-# Result: 70% cost reduction, <2s cold starts, no warm pool baseline costs
-```
-
-### **Standard Workflow**
 
 ```bash
 # 1. Get setup instructions for any provider
@@ -268,25 +169,23 @@ terradev run --gpu A100 --image pytorch/pytorch:latest -c "python train.py"
 terradev run --gpu H100 --image vllm/vllm-openai:latest --keep-alive --port 8000
 ```
 
----
-
 ## BYOAuth — Bring Your Own Authentication
 
 Terradev never touches, stores, or proxies your cloud credentials through a third party. Your API keys stay on your machine in `~/.terradev/credentials.json` — encrypted at rest, never transmitted.
 
 **How it works:**
+
 1. You run `terradev configure --provider <name>` and enter your API key
 2. Credentials are stored locally in your home directory — never sent to Terradev servers
 3. Every API call goes directly from your machine to the cloud provider
 4. No middleman account, no shared credentials, no markup on provider pricing
 
 **Why this matters:**
+
 - **Zero trust exposure** — No third party holds your AWS/GCP/Azure keys
 - **No vendor lock-in** — If you stop using Terradev, your cloud accounts are untouched
 - **Enterprise-ready** — Compliant with SOC2, HIPAA, and internal security policies that prohibit sharing credentials with SaaS vendors
 - **Full audit trail** — Every provision is logged locally with provider, cost, and timestamp
-
----
 
 ## CLI Commands
 
@@ -307,8 +206,6 @@ Terradev never touches, stores, or proxies your cloud credentials through a thir
 | `terradev rollback` | **NEW:** Versioned rollback to any deployment |
 | `terradev manifests` | **NEW:** List cached deployment manifests |
 | `terradev integrations` | Show status of W&B, Prometheus, and infra hooks |
-| `terradev inferx` | **NEW:** InferX serverless inference platform |
-| `terradev gitops` | **NEW:** GitOps automation with ArgoCD/Flux |
 
 ### HF Spaces Commands (NEW!)
 ```bash
@@ -339,76 +236,6 @@ terradev rollback my-training@v2
 terradev manifests --job my-training
 ```
 
----
-
-## InferX Serverless Integration
-
-> *"We've been working on restoring an initialized GPU snapshot instead of rebuilding context from scratch. That changes the shape of the tail quite a bit."* - Reddit Discussion
-
-Terradev now integrates with InferX to solve the exact challenges discussed in the Reddit thread:
-
-### **<2s Cold Starts with GPU Snapshots**
-```bash
-# Configure InferX
-terradev inferx configure --api-key YOUR_KEY
-
-# Deploy with snapshot technology
-terradev inferx deploy --model llama2-7b --gpu-type A100 --snapshot-enabled
-
-# Result: <2s cold starts, no context rebuild, deterministic performance
-```
-
-### **90% GPU Utilization with 30+ Models per GPU**
-```bash
-# Check model status
-terradev inferx status --model-id llama2-7b
-
-# Deploy multiple models on same GPU
-terradev inferx deploy --model llama2-7b --gpu-type A100 --multi-tenant
-
-# Result: 90% utilization, 30+ models per GPU, cost-optimized
-```
-
-### **70% Cost Reduction for Bursty Workloads**
-```bash
-# Analyze and optimize costs
-terradev inferx optimize --tier economy --output cost-report.json
-
-# Implement optimizations automatically
-terradev inferx optimize --tier economy --implement
-
-# Result: 70% cost reduction, no warm pool baseline costs
-```
-
-### **Multi-Cloud Failover**
-```bash
-# Deploy with automatic failover
-terradev inferx deploy --model llama2-7b --multi-cloud --auto-failover
-
-# Result: Automatic failover to cheapest available GPU
-```
-
----
-
-## Real-World Reddit Thread Solutions
-
-### **Problem**: *"Making multi-cloud provisioning fast enough that it doesn't add latency"*
-**Solution**: Terradev parallel provisioning across 11+ providers in 2-5 seconds
-
-### **Problem**: *"How are you handling model weight locality across providers?"*
-**Solution**: Strategic pre-staging across regions with automatic failover
-
-### **Problem**: *"We've been working on restoring an initialized GPU snapshot instead of rebuilding context from scratch"*
-**Solution**: InferX integration with <2s cold starts and GPU snapshots
-
-### **Problem**: *"Parallel provisioning with IaC can be quite powerful when paired with smart context caching"*
-**Solution**: GitOps automation with manifest cache and drift detection
-
-### **Problem**: *"The real answer isn't optimizing a single H100, it's about not committing to a single H100 in the first place"*
-**Solution**: Cost-optimized burst handling with 70% reduction and no warm pool costs
-
----
-
 ## Observability & ML Integrations
 
 Terradev facilitates connections to your existing tools via BYOAPI — your keys stay local, all data flows directly from your instances to your services.
@@ -421,8 +248,6 @@ Terradev facilitates connections to your existing tools via BYOAPI — your keys
 
 > Prices queried in real-time from all 10+ providers. Actual savings vary by availability.
 
----
-
 ## Pricing Tiers
 
 | Feature | Research (Free) | Research+ ($49.99/mo) | Enterprise ($299.99/mo) |
@@ -433,8 +258,6 @@ Terradev facilitates connections to your existing tools via BYOAPI — your keys
 | Cost tracking | Yes | Yes | Yes |
 | Dataset staging | Yes | Yes | Yes |
 | Egress optimization | Basic | Full | Full + custom routes |
-
----
 
 ## Integrations
 
@@ -464,14 +287,10 @@ terradev run --gpu A100 --image pytorch/pytorch:latest -c "python train.py"
 terradev run --gpu H100 --image vllm/vllm-openai:latest --keep-alive --port 8000
 ```
 
----
-
 ## Requirements
 
 - Python >= 3.9
 - Cloud provider API keys (configured via `terradev configure`)
-
----
 
 ## License
 
