@@ -1,492 +1,323 @@
-# 🚀 Terradev CLI - Cross-Cloud Compute Optimization Platform
+# Terradev CLI v2.9.8
 
-**Parallel provisioning and orchestration for cross-cloud optimized compute.**
+BYOAPI: Cross-cloud GPU provisioning and cost optimization platform with GitOps automation.
 
-Terradev operates faster than any sequential tool by orders of magnitude to find and stage datasets, then deploy optimal compute instances across multiple cloud providers simultaneously.
+**GitHub Repository**: https://github.com/theoddden/terradev
 
----
-
-## 🎯 Overview
-
-Terradev is a CLI tool that fits as a set of procurement heuristics in-between tools like Grafana, Kubernetes and cloud-compute providers. It combines parallel quoting, latency testing, parallelized data storage, and automated containerized deployment to save developers running portable workloads **20%+ on compute costs**.
-
-### 🚀 Key Features
-
-- **🔄 Parallel Provisioning**: Query all cloud providers simultaneously for optimal pricing
-- **💰 Cost Optimization**: Save 20%+ on compute costs through intelligent provider selection
-- **🌐 Multi-Cloud Support**: AWS, GCP, Azure, RunPod, VastAI, Lambda Labs, CoreWeave, TensorDock
-- **⚡ Real-Time Quoting**: Get instant quotes from all providers in parallel
-- **📊 Analytics & Insights**: Comprehensive cost analytics and optimization recommendations
-- **🐳 Container Orchestration**: Automated deployment and management
-- **📦 Dataset Staging**: Parallel dataset staging across regions for optimal access
-- **🔒 Secure Credential Management**: Encrypted storage of cloud provider credentials
+**License Details**: https://github.com/theoddden/terradev?tab=License-1-ov-file
 
 ---
 
-## 🛠️ Installation
+## Why Terradev?
 
-### Prerequisites
+Developers overpay by only accessing single-cloud workflows or using sequential provisioning with inefficient egress + rate-limiting.
 
-- Python 3.9+
-- Cloud provider accounts and API keys
-- Docker (for containerized deployments)
-
-### Quick Install
-
-```bash
-# Clone the repository
-git clone https://github.com/terradev/terradev-cli.git
-cd terradev-cli
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Install CLI
-pip install -e .
-```
-
-### Verify Installation
-
-```bash
-terradev --version
-terradev --help
-```
+Terradev is a cross-cloud compute-provisioning CLI that compresses + stages datasets, provisions optimal instances + nodes, and deploys **3-5x faster** than sequential provisioning.
 
 ---
 
-## 🔧 Configuration
+## GitOps Automation
 
-### Initial Setup
+Production-ready GitOps workflows based on real-world Kubernetes experience:
 
 ```bash
-# Configure your cloud providers
-terradev configure --provider aws --region us-east-1
-terradev configure --provider gcp --region us-central1
-terradev configure --provider runpod
+# Initialize GitOps repository
+terradev gitops init --provider github --repo my-org/infra --tool argocd --cluster production
 
-# View current configuration
-terradev configure
+# Bootstrap GitOps tool on cluster
+terradev gitops bootstrap --tool argocd --cluster production
+
+# Sync cluster with Git repository
+terradev gitops sync --cluster production --environment prod
+
+# Validate configuration
+terradev gitops validate --dry-run --cluster production
 ```
 
-### Supported Providers
+### GitOps Features
+- **Multi-Provider Support**: GitHub, GitLab, Bitbucket, Azure DevOps
+- **Tool Integration**: ArgoCD and Flux CD support
+- **Repository Structure**: Automated GitOps repository setup
+- **Policy as Code**: Gatekeeper/Kyverno policy templates
+- **Multi-Environment**: Dev, staging, production environments
+- **Resource Management**: Automated quotas and network policies
+- **Validation**: Dry-run and apply validation
+- **Security**: Best practices and compliance policies
 
-| Provider | GPU Types | Regions | Features |
-|----------|-----------|---------|----------|
-| **AWS** | A100, V100, H100 | Global | Spot instances, on-demand |
-| **GCP** | A100, V100, T4 | Global | Preemptible instances |
-| **Azure** | A100, V100 | Global | Spot instances |
-| **RunPod** | RTX4090, A100 | Global | GPU cloud platform |
-| **VastAI** | A100, RTX4090 | Global | Marketplace |
-| **Lambda Labs** | A100, RTX6000 | Global | AI cloud |
-| **CoreWeave** | A100, RTX4090 | Global | Kubernetes |
-| **TensorDock** | RTX4090, A100 | Global | GPU marketplace |
-
----
-
-## 🚀 Quick Start
-
-### 1. Get Real-Time Quotes
-
-```bash
-# Get quotes for A100 GPUs across all providers
-terradev quote --gpu-type A100 --parallel 8
-
-# Filter by specific providers and regions
-terradev quote --gpu-type V100 --providers aws gcp runpod --region us-east-1
+### GitOps Repository Structure
 ```
-
-### 2. Provision Instances
-
-```bash
-# Provision optimal A100 instances
-terradev provision --gpu-type A100 --count 2 --max-price 3.0
-
-# Dry run to see what would be provisioned
-terradev provision --gpu-type RTX4090 --count 1 --dry-run
-```
-
-### 3. Manage Instances
-
-```bash
-# View all instances
-terradev status
-
-# Manage specific instance
-terradev manage --instance-id aws_i-1234567890abcdef --action status
-terradev manage --instance-id runpod_abc123 --action stop
-```
-
-### 4. Stage Datasets
-
-```bash
-# Stage dataset across multiple regions
-terradev stage --dataset "my-training-data" --target-regions us-east-1 us-west-2 eu-west-1
-```
-
-### 5. Execute Commands
-
-```bash
-# Execute commands on instances
-terradev execute --instance-id aws_i-1234567890abcdef --command "nvidia-smi"
+my-infra/
+├── clusters/
+│   ├── dev/
+│   ├── staging/
+│   └── prod/
+├── apps/
+├── infra/
+├── policies/
+└── monitoring/
 ```
 
 ---
 
-## 📊 Advanced Features
+## HuggingFace Spaces Integration
 
-### Cost Analytics
+Deploy any HuggingFace model to Spaces with one command:
 
 ```bash
-# View cost analytics for the last 30 days
-terradev analytics --days 30 --format table
+# Install HF Spaces support
+pip install terradev-cli[hf]
 
-# Get JSON output for integration
-terradev analytics --days 7 --format json
+# Set your HF token
+export HF_TOKEN=your_huggingface_token
+
+# Deploy Llama 2 with one click
+terradev hf-space my-llama --model-id meta-llama/Llama-2-7b-hf --template llm
+
+# Deploy custom model with GPU
+terradev hf-space my-model --model-id microsoft/DialoGPT-medium \
+  --hardware a10g-large --sdk gradio
+
+# Result:
+# Space URL: https://huggingface.co/spaces/username/my-llama
+# 100k+ researchers can now access your model!
 ```
 
-### Automatic Optimization
+### HF Spaces Features
+- **One-Click Deployment**: No manual configuration required
+- **Template-Based**: LLM, embedding, and image model templates
+- **Multi-Hardware**: CPU-basic to A100-large GPU tiers
+- **Auto-Generated Apps**: Gradio, Streamlit, and Docker support
+- **Revenue Streams**: Hardware upgrades, private spaces, template licensing
 
+### Available Templates
 ```bash
-# Run cost optimization recommendations
-terradev optimize
-```
+# LLM Template (A10G GPU)
+terradev hf-space my-llama --model-id meta-llama/Llama-2-7b-hf --template llm
 
-### Dataset Management
+# Embedding Template (CPU-upgrade)
+terradev hf-space my-embeddings --model-id sentence-transformers/all-MiniLM-L6-v2 --template embedding
 
-```bash
-# Stage with compression
-terradev stage --dataset "large-dataset.zip" --compression high --target-regions us-east-1
-
-# Stage to specific cloud regions
-terradev stage --dataset "training-images" --target-regions us-east-1 eu-west-1 asia-east-1
+# Image Model Template (T4 GPU)
+terradev hf-space my-image --model-id runwayml/stable-diffusion-v1-5 --template image
 ```
 
 ---
 
-## 🌐 API Integration
-
-### Environment Variables
+## Installation
 
 ```bash
-export TERRADEV_CONFIG_PATH="$HOME/.terradev/config.json"
-export TERRADEV_AUTH_PATH="$HOME/.terradev/auth.json"
-export TERRADEV_LOG_LEVEL="INFO"
-```
-
-### Configuration File
-
-```json
-{
-  "default_providers": ["aws", "gcp", "runpod"],
-  "parallel_queries": 6,
-  "max_price_threshold": 10.0,
-  "preferred_regions": ["us-east-1", "us-west-2", "eu-west-1"],
-  "optimization_settings": {
-    "price_weight": 0.4,
-    "latency_weight": 0.2,
-    "reliability_weight": 0.3,
-    "availability_weight": 0.1
-  }
-}
-```
-
----
-
-## 🔒 Security
-
-### Credential Management
-
-Terradev uses encrypted credential storage:
-
-```bash
-# Credentials are encrypted at rest
-ls ~/.terradev/
-# config.json  auth.json
-
-# Backup credentials securely
-terradev backup --file my-backup.json
-
-# Restore credentials
-terradev restore --file my-backup.json
-```
-
-### Security Features
-
-- **🔐 Encrypted Storage**: All credentials encrypted with Fernet
-- **🔑 Secure Key Management**: Automatic key generation and rotation
-- **🛡️ Permission Control**: Role-based access to cloud resources
-- **📋 Audit Trail**: Complete audit log of all operations
-- **🔄 Token Rotation**: Automatic API key rotation support
-
----
-
-## 📈 Performance
-
-### Parallel Processing
-
-Terradev achieves **4-6x faster** provisioning through parallel processing:
-
-```bash
-# Sequential approach (slow)
-# Provider 1: 2.5s → Provider 2: 2.3s → Provider 3: 2.7s = 7.5s total
-
-# Terradev parallel approach (fast)
-# Provider 1: 2.5s ↘
-# Provider 2: 2.3s → 2.7s total (fastest provider)
-# Provider 3: 2.7s ↗
-```
-
-### Cost Savings
-
-Typical cost savings with Terradev:
-
-- **AWS Spot vs On-Demand**: 60-70% savings
-- **Multi-Cloud Arbitrage**: 15-25% savings
-- **Regional Optimization**: 10-20% savings
-- **Dataset Staging**: 50-80% egress cost reduction
-
----
-
-## 🐳 Docker Integration
-
-### Containerized Deployment
-
-```bash
-# Build Docker image
-docker build -t terradev-cli .
-
-# Run with mounted credentials
-docker run -v ~/.terradev:/root/.terradev terradev-cli quote --gpu-type A100
-```
-
-### Kubernetes Deployment
-
-```yaml
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: terradev-provision
-spec:
-  template:
-    spec:
-      containers:
-      - name: terradev
-        image: terradev-cli:latest
-        command: ["terradev", "provision", "--gpu-type", "A100"]
-        volumeMounts:
-        - name: config
-          mountPath: /root/.terradev
-      volumes:
-      - name: config
-        secret:
-          secretName: terradev-config
-```
-
----
-
-## 📊 Monitoring & Analytics
-
-### Real-Time Monitoring
-
-```bash
-# Monitor provisioning progress
-terradev status --watch
-
-# Get detailed analytics
-terradev analytics --days 30 --detailed
-```
-
-### Integration with Grafana
-
-Terradev provides metrics for Grafana dashboards:
-
-- **Cost Metrics**: Real-time cost tracking
-- **Performance Metrics**: Provisioning speed and success rates
-- **Utilization Metrics**: GPU utilization and availability
-- **Savings Metrics**: Cost savings and optimization impact
-
----
-
-## 🔧 Troubleshooting
-
-### Common Issues
-
-#### Authentication Errors
-
-```bash
-# Check credentials
-terradev configure
-
-# Re-authenticate
-terradev configure --provider aws --api-key YOUR_KEY --secret-key YOUR_SECRET
-```
-
-#### Provider Connection Issues
-
-```bash
-# Test provider connectivity
-terradev quote --provider aws --gpu-type A100 --dry-run
-
-# Check logs
-terradev --verbose status
-```
-
-#### Instance Provisioning Failures
-
-```bash
-# Check instance status
-terradev manage --instance-id INSTANCE_ID --action status
-
-# View detailed error logs
-terradev --verbose provision --gpu-type A100 --dry-run
-```
-
-### Debug Mode
-
-```bash
-# Enable verbose logging
-terradev --verbose quote --gpu-type A100
-
-# Debug specific provider
-terradev --verbose quote --provider aws --gpu-type A100
-```
-
----
-
-## 🤝 Contributing
-
-### Development Setup
-
-```bash
-# Clone repository
-git clone https://github.com/terradev/terradev-cli.git
-cd terradev-cli
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or
-venv\Scripts\activate  # Windows
-
-# Install development dependencies
-pip install -r requirements-dev.txt
-
-# Install in development mode
-pip install -e .
-```
-
-### Running Tests
-
-```bash
-# Run all tests
-pytest
-
-# Run specific test
-pytest tests/test_providers.py
-
-# Run with coverage
-pytest --cov=terradev_cli
-```
-
-### Adding New Providers
-
-1. Create provider class in `terradev_cli/providers/`
-2. Implement `BaseProvider` interface
-3. Register in `ProviderFactory`
-4. Add tests
-5. Update documentation
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🆘 Support
-
-### Getting Help
-
-- **Documentation**: [Full documentation](https://docs.terradev.com)
-- **Issues**: [GitHub Issues](https://github.com/terradev/terradev-cli/issues)
-- **Discord**: [Terradev Community](https://discord.gg/terradev)
-- **Email**: support@terradev.com
-
-### Feature Requests
-
-We welcome feature requests! Please:
-
-1. Check existing issues
-2. Use the feature request template
-3. Provide detailed requirements
-4. Include use cases and examples
-
----
-
-## 🗺️ Roadmap
-
-### Upcoming Features
-
-- **🌐 Web Dashboard**: Web-based management interface
-- **📱 Mobile App**: iOS and Android applications
-- **🔌 Plugin System**: Extensible plugin architecture
-- **🤖 AI Optimization**: ML-based cost optimization
-- **📊 Advanced Analytics**: Predictive cost analysis
-- **🔗 API Gateway**: RESTful API for integration
-- **📈 Real-Time Monitoring**: Live dashboard and alerts
-
-### Provider Expansion
-
-- **Oracle Cloud**: OCI GPU instances
-- **IBM Cloud**: IBM GPU offerings
-- **Alibaba Cloud**: Alibaba GPU instances
-- **DigitalOcean**: DO GPU droplets
-- **Hetzner Cloud**: Hetzner GPU servers
-
----
-
-## 🎉 Success Stories
-
-### Case Studies
-
-#### Machine Learning Startup
-- **Problem**: High GPU costs on single cloud provider
-- **Solution**: Terradev multi-cloud optimization
-- **Result**: **35% cost reduction** with improved performance
-
-#### Research Institution
-- **Problem**: Slow sequential provisioning
-- **Solution**: Parallel provisioning with Terradev
-- **Result**: **6x faster** instance deployment
-
-#### Enterprise ML Team
-- **Problem**: Complex multi-cloud management
-- **Solution**: Unified Terradev interface
-- **Result**: **50% reduction** in management overhead
-
----
-
-## 🚀 Get Started Now
-
-Ready to save 20%+ on your compute costs?
-
-```bash
-# Install Terradev
 pip install terradev-cli
-
-# Configure your providers
-terradev configure --provider aws --region us-east-1
-
-# Get your first quotes
-terradev quote --gpu-type A100
-
-# Start saving!
-terradev provision --gpu-type A100 --count 2
 ```
 
-**🚀 Terradev - Parallel provisioning for cross-cloud compute optimization**
+With HF Spaces support:
+```bash
+pip install terradev-cli[hf]        # HuggingFace Spaces deployment
+pip install terradev-cli[all]        # All cloud providers + ML services + HF Spaces
+```
 
 ---
 
-*Built for developers who demand the best performance at the best price.*
+## Quick Start
+
+```bash
+# 1. Get setup instructions for any provider
+terradev setup runpod --quick
+terradev setup aws --quick
+
+# 2. Configure your cloud credentials (BYOAPI — you own your keys)
+terradev configure --provider runpod
+terradev configure --provider aws
+terradev configure --provider vastai
+
+# 3. Deploy to HuggingFace Spaces (NEW!)
+terradev hf-space my-llama --model-id meta-llama/Llama-2-7b-hf --template llm
+terradev hf-space my-embeddings --model-id sentence-transformers/all-MiniLM-L6-v2 --template embedding
+terradev hf-space my-image --model-id runwayml/stable-diffusion-v1-5 --template image
+
+# 4. Get enhanced quotes with conversion prompts
+terradev quote -g A100
+terradev quote -g A100 --quick  # Quick provision best quote
+
+# 5. Provision the cheapest instance (real API call)
+terradev provision -g A100
+
+# 6. Configure ML services
+terradev configure --provider wandb --dashboard-enabled true
+terradev configure --provider langchain --tracing-enabled true
+
+# 7. Use ML services
+terradev ml wandb --test
+terradev ml langchain --create-workflow my-workflow
+
+# 8. View analytics
+python user_analytics.py
+
+# 9. Provision 4x H100s in parallel across multiple clouds
+terradev provision -g H100 -n 4 --parallel 6
+
+# 10. Dry-run to see the allocation plan without launching
+terradev provision -g A100 -n 2 --dry-run
+
+# 11. Manage running instances
+terradev status --live
+terradev manage -i <instance-id> -a stop
+terradev manage -i <instance-id> -a start
+terradev manage -i <instance-id> -a terminate
+
+# 12. Execute commands on provisioned instances
+terradev execute -i <instance-id> -c "python train.py"
+
+# 13. Stage datasets near compute (compress + chunk + upload)
+terradev stage -d ./my-dataset --target-regions us-east-1,eu-west-1
+
+# 14. View cost analytics from the tracking database
+terradev analytics --days 30
+
+# 15. Find cheaper alternatives for running instances
+terradev optimize
+
+# 16. One-command Docker workload (provision + deploy + run)
+terradev run --gpu A100 --image pytorch/pytorch:latest -c "python train.py"
+
+# 17. Keep an inference server alive
+terradev run --gpu H100 --image vllm/vllm-openai:latest --keep-alive --port 8000
+```
+
+---
+
+## BYOAuth — Bring Your Own Authentication
+
+Terradev never touches, stores, or proxies your cloud credentials through a third party. Your API keys stay on your machine in `~/.terradev/credentials.json` — encrypted at rest, never transmitted.
+
+**How it works:**
+1. You run `terradev configure --provider <name>` and enter your API key
+2. Credentials are stored locally in your home directory — never sent to Terradev servers
+3. Every API call goes directly from your machine to the cloud provider
+4. No middleman account, no shared credentials, no markup on provider pricing
+
+**Why this matters:**
+- **Zero trust exposure** — No third party holds your AWS/GCP/Azure keys
+- **No vendor lock-in** — If you stop using Terradev, your cloud accounts are untouched
+- **Enterprise-ready** — Compliant with SOC2, HIPAA, and internal security policies that prohibit sharing credentials with SaaS vendors
+- **Full audit trail** — Every provision is logged locally with provider, cost, and timestamp
+
+---
+
+## CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `terradev configure` | Set up API credentials for any provider |
+| `terradev quote` | Get real-time GPU pricing across all clouds |
+| `terradev provision` | Provision instances with parallel multi-cloud arbitrage |
+| `terradev manage` | Stop, start, terminate, or check instance status |
+| `terradev status` | View all instances and cost summary |
+| `terradev execute` | Run commands on provisioned instances |
+| `terradev stage` | Compress, chunk, and stage datasets near compute |
+| `terradev analytics` | Cost analytics with daily spend trends |
+| `terradev optimize` | Find cheaper alternatives for running instances |
+| `terradev run` | Provision + deploy Docker container + execute in one command |
+| `terradev hf-space` | **NEW:** One-click HuggingFace Spaces deployment |
+| `terradev up` | **NEW:** Manifest cache + drift detection |
+| `terradev rollback` | **NEW:** Versioned rollback to any deployment |
+| `terradev manifests` | **NEW:** List cached deployment manifests |
+| `terradev integrations` | Show status of W&B, Prometheus, and infra hooks |
+
+### HF Spaces Commands (NEW!)
+```bash
+# Deploy Llama 2 to HF Spaces
+terradev hf-space my-llama --model-id meta-llama/Llama-2-7b-hf --template llm
+
+# Deploy with custom hardware
+terradev hf-space my-model --model-id microsoft/DialoGPT-medium \
+  --hardware a10g-large --sdk gradio --private
+
+# Deploy embedding model
+terradev hf-space my-embeddings --model-id sentence-transformers/all-MiniLM-L6-v2 \
+  --template embedding --env BATCH_SIZE=64
+```
+
+### Manifest Cache Commands (NEW!)
+```bash
+# Provision with manifest cache
+terradev up --job my-training --gpu-type A100 --gpu-count 4
+
+# Fix drift automatically
+terradev up --job my-training --fix-drift
+
+# Rollback to previous version
+terradev rollback my-training@v2
+
+# List all cached manifests
+terradev manifests --job my-training
+```
+
+---
+
+## Observability & ML Integrations
+
+Terradev facilitates connections to your existing tools via BYOAPI — your keys stay local, all data flows directly from your instances to your services.
+
+| Integration | What Terradev Does | Setup |
+|-------------|-------------------|-------|
+| **Weights & Biases** | Auto-injects WANDB_* env vars into provisioned containers | `terradev configure --provider wandb --api-key YOUR_KEY` |
+| **Prometheus** | Pushes provision/terminate metrics to your Pushgateway | `terradev configure --provider prometheus --api-key PUSHGATEWAY_URL` |
+| **Grafana** | Exports a ready-to-import dashboard JSON | `terradev integrations --export-grafana` |
+
+> Prices queried in real-time from all 10+ providers. Actual savings vary by availability.
+
+---
+
+## Pricing Tiers
+
+| Feature | Research (Free) | Research+ ($49.99/mo) | Enterprise ($299.99/mo) |
+|----------|------------------|------------------------|------------------------|
+| Max concurrent instances | 1 | 8 | 32 |
+| Provisions/month | 10 | 100 | Unlimited |
+| Providers | All 11 | All 11 | All 11 + priority |
+| Cost tracking | Yes | Yes | Yes |
+| Dataset staging | Yes | Yes | Yes |
+| Egress optimization | Basic | Full | Full + custom routes |
+
+---
+
+## Integrations
+
+### Jupyter / Colab / VS Code Notebooks
+```bash
+pip install terradev-jupyter
+%load_ext terradev_jupyter
+
+%terradev quote -g A100
+%terradev provision -g H100 --dry-run
+%terradev run --gpu A100 --image pytorch/pytorch:latest --dry-run
+```
+
+### GitHub Actions
+```yaml
+- uses: theodden/terradev-action@v1
+  with:
+    gpu-type: A100
+    max-price: "1.50"
+  env:
+    TERRADEV_RUNPOD_KEY: ${{ secrets.RUNPOD_API_KEY }}
+```
+
+### Docker (One-Command Workloads)
+```bash
+terradev run --gpu A100 --image pytorch/pytorch:latest -c "python train.py"
+terradev run --gpu H100 --image vllm/vllm-openai:latest --keep-alive --port 8000
+```
+
+---
+
+## Requirements
+
+- Python >= 3.9
+- Cloud provider API keys (configured via `terradev configure`)
+
+---
+
+## License
+
+Business Source License 1.1 (BUSL-1.1) - see LICENSE file for details
