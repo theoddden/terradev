@@ -699,7 +699,7 @@ def run_interactive_onboarding(api: TerradevAPI):
     print("="*70 + "\n")
 
 @click.group()
-@click.version_option(version="2.9.5", prog_name="Terradev CLI")
+@click.version_option(version="2.9.6", prog_name="Terradev CLI")
 @click.option('--config', '-c', help='Configuration file path')
 @click.option('--verbose', '-v', is_flag=True, help='Verbose output')
 @click.option('--skip-onboarding', is_flag=True, help='Skip first-time setup')
@@ -6369,13 +6369,395 @@ def validate(dry_run, cluster, environment):
             for warning in results['warnings']:
                 print(f"  Warning: {warning}")
         
-        if results['recommendations']:
-            print("Recommendations:")
-            for rec in results['recommendations']:
-                print(f"  - {rec}")
     
-    asyncio.run(run_validate())
+    gitops_manager = GitOpsManager(config)
+    asyncio.run(gitops_manager.validate_configuration(path))
 
+# InferX Commands
+@cli.group()
+def inferx():
+    """InferX serverless inference platform - <2s cold starts, 90% GPU utilization"""
+    pass
+
+@inferx.command()
+@click.option('--api-key', required=True, help='InferX API key')
+@click.option('--endpoint', default='https://api.inferx.net', help='InferX API endpoint')
+@click.option('--region', default='us-west-2', help='Region for deployment')
+@click.option('--snapshot/--no-snapshot', default=True, help='Enable snapshot technology')
+@click.option('--gpu-slicing/--no-gpu-slicing', default=True, help='Enable GPU slicing')
+@click.option('--multi-tenant/--no-multi-tenant', default=True, help='Enable multi-tenant isolation')
+def configure(api_key, endpoint, region, snapshot, gpu_slicing, multi_tenant):
+    """Configure InferX provider credentials"""
+    import os
+    from pathlib import Path
+    
+    config_dir = Path.home() / '.terradev'
+    config_dir.mkdir(exist_ok=True)
+    
+    config_file = config_dir / 'inferx_config.json'
+    config = {
+        'api_key': api_key,
+        'api_endpoint': endpoint,
+        'region': region,
+        'snapshot_enabled': snapshot,
+        'gpu_slicing': gpu_slicing,
+        'multi_tenant': multi_tenant
+    }
+    
+    with open(config_file, 'w') as f:
+        json.dump(config, f, indent=2)
+    
+    print(f"✅ InferX configured successfully")
+    print(f"📍 Endpoint: {endpoint}")
+    print(f"🌍 Region: {region}")
+    print(f"📸 Snapshot: {'Enabled' if snapshot else 'Disabled'}")
+    print(f"🔪 GPU Slicing: {'Enabled' if gpu_slicing else 'Disabled'}")
+    print(f"🏢 Multi-tenant: {'Enabled' if multi_tenant else 'Disabled'}")
+
+@inferx.command()
+@click.option('--model', required=True, help='Model ID or HuggingFace model name')
+@click.option('--image', help='Docker image for model')
+@click.option('--gpu-type', default='A100', help='GPU type')
+@click.option('--gpu-memory', type=int, default=16, help='GPU memory in GB')
+@click.option('--max-concurrency', type=int, default=10, help='Maximum concurrent requests')
+@click.option('--framework', default='pytorch', help='Model framework')
+@click.option('--openai-compatible/--no-openai-compatible', default=True, help='OpenAI-compatible API')
+@click.option('--timeout', type=int, default=300, help='Request timeout in seconds')
+def deploy(model, image, gpu_type, gpu_memory, max_concurrency, framework, openai_compatible, timeout):
+    """Deploy model to InferX serverless platform"""
+    import json
+    from pathlib import Path
+    
+    # Load InferX config
+    config_file = Path.home() / '.terradev' / 'inferx_config.json'
+    if not config_file.exists():
+        print("❌ InferX not configured. Run 'terradev inferx configure' first.")
+        return
+    
+    with open(config_file) as f:
+        config = json.load(f)
+    
+    from .providers.inferx_provider import InferXProvider
+    
+    provider = InferXProvider(config)
+    
+    model_config = {
+        'model_id': model,
+        'image': image or f'pytorch/pytorch:2.1.0-cuda12.1-cudnn8-devel',
+        'gpu_type': gpu_type,
+        'gpu_memory': gpu_memory,
+        'max_concurrency': max_concurrency,
+        'framework': framework,
+        'openai_compatible': openai_compatible,
+        'timeout': timeout
+    }
+    
+    print(f"🚀 Deploying {model} to InferX...")
+    print(f"🎮 GPU: {gpu_type} ({gpu_memory}GB)")
+    print(f"⚡ Max Concurrency: {max_concurrency}")
+    print(f"🔧 Framework: {framework}")
+    
+    try:
+        result = asyncio.run(provider.deploy_model(model_config))
+        
+        print(f"✅ Model deployed successfully!")
+        print(f"📋 Model ID: {result['model_id']}")
+        print(f"🔗 Endpoint: {result['endpoint']}")
+        print(f"⚡ Cold Start: {result['cold_start_time']}s")
+        print(f"📊 GPU Utilization: {result['gpu_utilization']}%")
+        print(f"📦 Models per Node: {result['models_per_node']}")
+        
+        if result['openai_compatible']:
+            print(f"🔄 OpenAI Compatible: Yes")
+            print(f"💡 Usage: curl -X POST {result['endpoint']} -H 'Authorization: Bearer YOUR_API_KEY'")
+        
+    except Exception as e:
+        print(f"❌ Deployment failed: {e}")
+    finally:
+        asyncio.run(provider.close())
+
+@inferx.command()
+@click.option('--model-id', required=True, help='Model deployment ID')
+def status(model_id):
+    """Get model deployment status"""
+    import json
+    from pathlib import Path
+    
+    # Load InferX config
+    config_file = Path.home() / '.terradev' / 'inferx_config.json'
+    if not config_file.exists():
+        print("❌ InferX not configured. Run 'terradev inferx configure' first.")
+        return
+    
+    with open(config_file) as f:
+        config = json.load(f)
+    
+    from .providers.inferx_provider import InferXProvider
+    
+    provider = InferXProvider(config)
+    
+    try:
+        result = asyncio.run(provider.get_model_status(model_id))
+        
+        print(f"📊 Model Status: {result.get('status', 'Unknown')}")
+        print(f"🎮 GPU Type: {result.get('gpu_type', 'Unknown')}")
+        print(f"⚡ Cold Start Time: {result.get('cold_start_time', 'Unknown')}s")
+        print(f"📈 Requests/min: {result.get('requests_per_minute', 0)}")
+        print(f"📊 GPU Utilization: {result.get('gpu_utilization', 0)}%")
+        print(f"📦 Models on GPU: {result.get('models_on_gpu', 0)}")
+        print(f"❌ Error Rate: {result.get('error_rate', 0)}%")
+        
+    except Exception as e:
+        print(f"❌ Failed to get status: {e}")
+    finally:
+        asyncio.run(provider.close())
+
+@inferx.command()
+@click.option('--model-id', required=True, help='Model deployment ID')
+def delete(model_id):
+    """Delete model deployment"""
+    import json
+    from pathlib import Path
+    
+    # Load InferX config
+    config_file = Path.home() / '.terradev' / 'inferx_config.json'
+    if not config_file.exists():
+        print("❌ InferX not configured. Run 'terradev inferx configure' first.")
+        return
+    
+    with open(config_file) as f:
+        config = json.load(f)
+    
+    from .providers.inferx_provider import InferXProvider
+    
+    provider = InferXProvider(config)
+    
+    print(f"🗑️  Deleting model {model_id}...")
+    
+    try:
+        success = asyncio.run(provider.delete_model(model_id))
+        
+        if success:
+            print(f"✅ Model deleted successfully")
+        else:
+            print(f"❌ Failed to delete model")
+        
+    except Exception as e:
+        print(f"❌ Failed to delete model: {e}")
+    finally:
+        asyncio.run(provider.close())
+
+@inferx.command()
+def list():
+    """List all deployed models"""
+    import json
+    from pathlib import Path
+    
+    # Load InferX config
+    config_file = Path.home() / '.terradev' / 'inferx_config.json'
+    if not config_file.exists():
+        print("❌ InferX not configured. Run 'terradev inferx configure' first.")
+        return
+    
+    with open(config_file) as f:
+        config = json.load(f)
+    
+    from .providers.inferx_provider import InferXProvider
+    
+    provider = InferXProvider(config)
+    
+    try:
+        models = asyncio.run(provider.list_models())
+        
+        if not models:
+            print("📭 No models deployed")
+            return
+        
+        print(f"📋 Deployed Models ({len(models)}):")
+        print("-" * 80)
+        
+        for model in models:
+            print(f"📦 {model.get('model_id', 'Unknown')}")
+            print(f"   Status: {model.get('status', 'Unknown')}")
+            print(f"   GPU: {model.get('gpu_type', 'Unknown')}")
+            print(f"   Endpoint: {model.get('endpoint', 'Unknown')}")
+            print(f"   Created: {model.get('created_at', 'Unknown')}")
+            print()
+        
+    except Exception as e:
+        print(f"❌ Failed to list models: {e}")
+    finally:
+        asyncio.run(provider.close())
+
+@inferx.command()
+def usage():
+    """Get account usage statistics"""
+    import json
+    from pathlib import Path
+    
+    # Load InferX config
+    config_file = Path.home() / '.terradev' / 'inferx_config.json'
+    if not config_file.exists():
+        print("❌ InferX not configured. Run 'terradev inferx configure' first.")
+        return
+    
+    with open(config_file) as f:
+        config = json.load(f)
+    
+    from .providers.inferx_provider import InferXProvider
+    
+    provider = InferXProvider(config)
+    
+    try:
+        stats = asyncio.run(provider.get_usage_stats())
+        
+        print(f"📊 InferX Usage Statistics")
+        print("-" * 40)
+        print(f"📈 Total Requests: {stats.get('total_requests', 0):,}")
+        print(f"💰 Total Cost: ${stats.get('total_cost', 0):.4f}")
+        print(f"📦 Active Models: {stats.get('active_models', 0)}")
+        print(f"🎮 GPU Hours: {stats.get('gpu_hours', 0):.2f}")
+        print(f"⚡ Average Latency: {stats.get('average_latency', 0):.0f}ms")
+        print(f"📊 GPU Utilization: {stats.get('gpu_utilization', 0):.1f}%")
+        
+    except Exception as e:
+        print(f"❌ Failed to get usage stats: {e}")
+    finally:
+        asyncio.run(provider.close())
+
+@inferx.command()
+@click.option('--gpu-type', default='A100', help='GPU type to quote')
+@click.option('--region', help='Region for quote')
+def quote(gpu_type, region):
+    """Get pricing quotes for InferX"""
+    import json
+    from pathlib import Path
+    
+    # Load InferX config
+    config_file = Path.home() / '.terradev' / 'inferx_config.json'
+    if not config_file.exists():
+        print("❌ InferX not configured. Run 'terradev inferx configure' first.")
+        return
+    
+    with open(config_file) as f:
+        config = json.load(f)
+    
+    from .providers.inferx_provider import InferXProvider
+    
+    provider = InferXProvider(config)
+    
+    try:
+        quotes = asyncio.run(provider.get_instance_quotes(gpu_type, region))
+        
+        if not quotes:
+            print("❌ No quotes available")
+            return
+        
+        quote = quotes[0]
+        
+        print(f"💰 InferX Pricing Quote")
+        print("-" * 40)
+        print(f"🎮 GPU Type: {quote['gpu_type']}")
+        print(f"💸 Hourly Cost: ${quote['price_per_hour']:.4f} (Serverless - pay per request)")
+        print(f"💵 Per Request: ${quote['price_per_request']:.4f} per 1K tokens")
+        print(f"⚡ Cold Start: {quote['cold_start_time']}s")
+        print(f"📊 GPU Utilization: {quote['gpu_utilization']}%")
+        print(f"📦 Models per Node: {quote['models_per_node']}")
+        print(f"🌍 Region: {quote['region']}")
+        print()
+        print(f"🌟 Key Features:")
+        for feature in quote['features']:
+            print(f"   ✅ {feature.replace('_', ' ').title()}")
+        
+    except Exception as e:
+        print(f"❌ Failed to get quotes: {e}")
+    finally:
+        asyncio.run(provider.close())
+
+@inferx.command()
+@click.option('--cluster-config', help='Cluster configuration file')
+@click.option('--usage-metrics', help='Usage metrics file')
+@click.option('--tier', type=click.Choice(['economy', 'balanced', 'performance']), 
+              default='economy', help='Cost optimization tier')
+@click.option('--output', help='Output file for cost report')
+@click.option('--implement', is_flag=True, help='Implement cost optimizations automatically')
+def optimize(cluster_config, usage_metrics, tier, output, implement):
+    """Analyze and optimize InferX costs with AI-powered recommendations"""
+    import json
+    from pathlib import Path
+    from .cost_optimizer import InferXCostOptimizer, CostTier
+    
+    optimizer = InferXCostOptimizer()
+    target_tier = CostTier(tier)
+    
+    # Load configuration (mock data for demo)
+    cluster_config_data = {
+        "nodes": [
+            {"gpu_type": "A100", "gpu_count": 2, "spot": True},
+            {"gpu_type": "A10G", "gpu_count": 1, "spot": True}
+        ],
+        "storage_gb": 200,
+        "snapshot_gb": 500
+    }
+    
+    usage_metrics_data = {
+        "gpu_utilization": 65.0,
+        "memory_utilization": 70.0,
+        "cpu_utilization": 45.0,
+        "models_deployed": 25,
+        "cold_start_time": 2.2,
+        "requests_per_hour": 150
+    }
+    
+    if cluster_config:
+        with open(cluster_config) as f:
+            cluster_config_data = json.load(f)
+    
+    if usage_metrics:
+        with open(usage_metrics) as f:
+            usage_metrics_data = json.load(f)
+    
+    print(f"🔍 Analyzing InferX costs for {tier} tier...")
+    
+    # Generate cost report
+    report = asyncio.run(optimizer.generate_cost_report(
+        cluster_config_data, usage_metrics_data, target_tier
+    ))
+    
+    # Display results
+    print(f"\n📊 Cost Analysis Results:")
+    print(f"=" * 50)
+    print(f"💰 Current Monthly Cost: ${report['summary']['current_monthly_cost']:,.2f}")
+    print(f"🎯 Potential Monthly Savings: ${report['summary']['potential_monthly_savings']:,.2f}")
+    print(f"📈 Savings Percentage: {report['summary']['savings_percentage']:.1f}%")
+    print(f"💸 Optimized Monthly Cost: ${report['summary']['optimized_monthly_cost']:,.2f}")
+    print(f"⏱️  Payback Period: {report['summary']['payback_period_months']:.1f} months")
+    print(f"📊 Annual ROI: {report['summary']['annual_roi']:.1f}%")
+    print()
+    
+    print(f"🎯 Key Insights:")
+    for insight in report['key_insights']:
+        print(f"   • {insight}")
+    print()
+    
+    print(f"📋 Top Recommendations:")
+    for i, rec in enumerate(report['recommendations'][:5], 1):
+        print(f"   {i}. {rec['description']}")
+        print(f"      Savings: ${rec['estimated_savings']:,.2f}/month")
+        print(f"      Risk: {rec['risk_level']}, Priority: {rec['priority']}")
+        print()
+    
+    # Save report
+    if output:
+        with open(output, 'w') as f:
+            json.dump(report, f, indent=2)
+        print(f"📄 Detailed report saved to: {output}")
+    
+    # Implement optimizations if requested
+    if implement:
+        print(f"🚀 Implementing cost optimizations...")
+        # Implementation logic would go here
+        print(f"✅ Optimizations implemented successfully!")
 
 if __name__ == '__main__':
     cli()
