@@ -1,4 +1,4 @@
-# Terradev CLI v2.9.8
+# Terradev CLI v3.1.1
 
 BYOAPI: Cross-cloud GPU provisioning and cost optimization platform with GitOps automation.
 
@@ -6,15 +6,11 @@ BYOAPI: Cross-cloud GPU provisioning and cost optimization platform with GitOps 
 
 **License Details**: https://github.com/theoddden/terradev?tab=License-1-ov-file
 
----
-
 ## Why Terradev?
 
 Developers overpay by only accessing single-cloud workflows or using sequential provisioning with inefficient egress + rate-limiting.
 
-Terradev is a cross-cloud compute-provisioning CLI that compresses + stages datasets, provisions optimal instances + nodes, and deploys **3-5x faster** than sequential provisioning.
-
----
+Terradev is a cross-cloud compute-provisioning CLI that compresses + stages datasets, provisions optimal instances + nodes, and deploys 3-5x faster than sequential provisioning.
 
 ## GitOps Automation
 
@@ -57,8 +53,6 @@ my-infra/
 └── monitoring/
 ```
 
----
-
 ## HuggingFace Spaces Integration
 
 Deploy any HuggingFace model to Spaces with one command:
@@ -79,7 +73,6 @@ terradev hf-space my-model --model-id microsoft/DialoGPT-medium \
 
 # Result:
 # Space URL: https://huggingface.co/spaces/username/my-llama
-# 100k+ researchers can now access your model!
 ```
 
 ### HF Spaces Features
@@ -101,8 +94,6 @@ terradev hf-space my-embeddings --model-id sentence-transformers/all-MiniLM-L6-v
 terradev hf-space my-image --model-id runwayml/stable-diffusion-v1-5 --template image
 ```
 
----
-
 ## Installation
 
 ```bash
@@ -114,8 +105,6 @@ With HF Spaces support:
 pip install terradev-cli[hf]        # HuggingFace Spaces deployment
 pip install terradev-cli[all]        # All cloud providers + ML services + HF Spaces
 ```
-
----
 
 ## Quick Start
 
@@ -129,7 +118,7 @@ terradev configure --provider runpod
 terradev configure --provider aws
 terradev configure --provider vastai
 
-# 3. Deploy to HuggingFace Spaces (NEW!)
+# 3. Deploy to HuggingFace Spaces
 terradev hf-space my-llama --model-id meta-llama/Llama-2-7b-hf --template llm
 terradev hf-space my-embeddings --model-id sentence-transformers/all-MiniLM-L6-v2 --template embedding
 terradev hf-space my-image --model-id runwayml/stable-diffusion-v1-5 --template image
@@ -182,8 +171,6 @@ terradev run --gpu A100 --image pytorch/pytorch:latest -c "python train.py"
 # 17. Keep an inference server alive
 terradev run --gpu H100 --image vllm/vllm-openai:latest --keep-alive --port 8000
 ```
-
----
 
 ## BYOAuth — Bring Your Own Authentication
 
@@ -252,8 +239,6 @@ terradev rollback my-training@v2
 terradev manifests --job my-training
 ```
 
----
-
 ## Observability & ML Integrations
 
 Terradev facilitates connections to your existing tools via BYOAPI — your keys stay local, all data flows directly from your instances to your services.
@@ -266,8 +251,6 @@ Terradev facilitates connections to your existing tools via BYOAPI — your keys
 
 > Prices queried in real-time from all 10+ providers. Actual savings vary by availability.
 
----
-
 ## Pricing Tiers
 
 | Feature | Research (Free) | Research+ ($49.99/mo) | Enterprise ($299.99/mo) |
@@ -278,8 +261,6 @@ Terradev facilitates connections to your existing tools via BYOAPI — your keys
 | Cost tracking | Yes | Yes | Yes |
 | Dataset staging | Yes | Yes | Yes |
 | Egress optimization | Basic | Full | Full + custom routes |
-
----
 
 ## Integrations
 
@@ -309,14 +290,10 @@ terradev run --gpu A100 --image pytorch/pytorch:latest -c "python train.py"
 terradev run --gpu H100 --image vllm/vllm-openai:latest --keep-alive --port 8000
 ```
 
----
-
 ## Requirements
 
 - Python >= 3.9
 - Cloud provider API keys (configured via `terradev configure`)
-
----
 
 ## License
 
