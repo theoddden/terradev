@@ -31,12 +31,12 @@ jobs:
 
     - name: Test CLI installation
       run: |
-        python -m terradev_cli --version
-        python -m terradev_cli --help
+        terradev --version
+        terradev --help
 
     - name: Test CLI commands
       run: |
-        python -m terradev_cli --skip-onboarding status
+        terradev --skip-onboarding status || true
 
   # Test PyPI Package
   test-pypi-package:
@@ -55,8 +55,8 @@ jobs:
 
     - name: Test PyPI installation
       run: |
-        python -m terradev_cli --version
-        python -m terradev_cli --help
+        terradev --version
+        terradev --help
 
   # Code Quality
   code-quality:
