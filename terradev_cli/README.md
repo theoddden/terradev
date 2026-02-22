@@ -1,10 +1,8 @@
-# Terradev CLI v3.1.1
+# Terradev CLI v3.1.5
 
-BYOAPI: Cross-cloud GPU provisioning and cost optimization platform with GitOps automation.
+BYOAPI, cross-cloud GPU provisioning and cost optimization platform with GitOps automation.
 
 **GitHub Repository**: https://github.com/theoddden/terradev
-
-**License Details**: https://github.com/theoddden/terradev?tab=License-1-ov-file
 
 ## Why Terradev?
 
@@ -14,44 +12,9 @@ Terradev is a cross-cloud compute-provisioning CLI that compresses + stages data
 
 ## GitOps Automation
 
-Production-ready GitOps workflows based on real-world Kubernetes experience:
+Production-ready GitOps workflows based on real-world Kubernetes experience.
 
-```bash
-# Initialize GitOps repository
-terradev gitops init --provider github --repo my-org/infra --tool argocd --cluster production
-
-# Bootstrap GitOps tool on cluster
-terradev gitops bootstrap --tool argocd --cluster production
-
-# Sync cluster with Git repository
-terradev gitops sync --cluster production --environment prod
-
-# Validate configuration
-terradev gitops validate --dry-run --cluster production
-```
-
-### GitOps Features
-- **Multi-Provider Support**: GitHub, GitLab, Bitbucket, Azure DevOps
-- **Tool Integration**: ArgoCD and Flux CD support
-- **Repository Structure**: Automated GitOps repository setup
-- **Policy as Code**: Gatekeeper/Kyverno policy templates
-- **Multi-Environment**: Dev, staging, production environments
-- **Resource Management**: Automated quotas and network policies
-- **Validation**: Dry-run and apply validation
-- **Security**: Best practices and compliance policies
-
-### GitOps Repository Structure
-```
-my-infra/
-├── clusters/
-│   ├── dev/
-│   ├── staging/
-│   └── prod/
-├── apps/
-├── infra/
-├── policies/
-└── monitoring/
-```
+*Terradev automatically configures topology with NUMA alignment when creating K8s clusters. GPU-NIC pairing is optimized at provisioning time, and no manual kubelet configuration is required.*
 
 ## HuggingFace Spaces Integration
 
@@ -187,8 +150,6 @@ Terradev never touches, stores, or proxies your cloud credentials through a thir
 - **No vendor lock-in** — If you stop using Terradev, your cloud accounts are untouched
 - **Enterprise-ready** — Compliant with SOC2, HIPAA, and internal security policies that prohibit sharing credentials with SaaS vendors
 - **Full audit trail** — Every provision is logged locally with provider, cost, and timestamp
-
----
 
 ## CLI Commands
 
