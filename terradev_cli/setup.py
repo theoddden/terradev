@@ -10,18 +10,9 @@ from pathlib import Path
 readme_file = Path(__file__).parent / "README.md"
 long_description = readme_file.read_text() if readme_file.exists() else ""
 
-# Read requirements
-requirements_file = Path(__file__).parent / "requirements.txt"
-requirements = []
-if requirements_file.exists():
-    requirements = requirements_file.read_text().strip().split("\n")
-    requirements = [
-        req.strip() for req in requirements if req.strip() and not req.startswith("#")
-    ]
-
 setup(
     name="terradev-cli",
-    version="3.1.3",
+    version="3.1.4",
     author="Terradev Team",
     author_email="team@terradev.com",
     description="Cross-cloud GPU provisioning with GitOps automation and HuggingFace Spaces deployment",
@@ -41,7 +32,11 @@ setup(
         "Programming Language :: Python :: 3.11",
     ],
     python_requires=">=3.8",
-    install_requires=requirements,
+    install_requires=[
+        "click>=8.0.0",
+        "aiohttp>=3.9.0",
+        "pyyaml>=6.0",
+    ],
     extras_require={
         "aws": ["boto3>=1.34.0"],
         "gcp": ["google-cloud-compute>=1.8.0"],
