@@ -9,25 +9,25 @@ import asyncio
 import aiohttp
 import json
 import os
-import yaml
+import uuid
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import subprocess
 import time
-import uuid
 import sys
 
-# Import telemetry
-try:
-    from .core.telemetry import get_mandatory_telemetry
-    _telemetry = get_mandatory_telemetry()
-except Exception:
-    _telemetry = None
+# Import telemetry - DISABLED TO PREVENT HANG
+# try:
+#     from core.telemetry import get_mandatory_telemetry
+#     _telemetry = get_mandatory_telemetry()
+# except Exception:
+#     _telemetry = None
+_telemetry = None
 
 # Import Kubernetes wrapper
 try:
-    from .k8s.terraform_wrapper import TerraformWrapper
+    from k8s.terraform_wrapper import TerraformWrapper
 except Exception:
     TerraformWrapper = None
 
@@ -703,7 +703,7 @@ def run_interactive_onboarding(api: TerradevAPI):
 @click.option('--config', '-c', help='Configuration file path')
 @click.option('--verbose', '-v', is_flag=True, help='Verbose output')
 @click.option('--skip-onboarding', is_flag=True, help='Skip first-time setup')
-def cli(config, verbose, skip_onboarding):
+def cli(config=None, verbose=False, skip_onboarding=False):
     """
     Terradev CLI - Cross-Cloud Compute Optimization Platform
     
@@ -4311,10 +4311,6 @@ def helm_generate(workload, gpu_type, image, gpu_count, memory, storage, budget,
         
     except Exception as e:
         print(f"❌ Failed to generate Helm chart: {e}")
-
-
-if __name__ == '__main__':
-    cli()
 
 
 # Price Percentiles Command
