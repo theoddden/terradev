@@ -2,6 +2,7 @@
 name: terradev-gpu-cloud
 description: Cross-cloud GPU provisioning, K8s cluster creation, and inference overflow. Get real-time pricing across 11+ cloud providers, provision the cheapest GPUs in seconds, spin up production K8s clusters, and burst to cloud when your local GPU maxes out. BYOAPI — your keys never leave your machine.
 version: 1.0.0
+license: MIT
 metadata:
   openclaw:
     requires:

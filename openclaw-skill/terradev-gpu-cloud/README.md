@@ -85,25 +85,22 @@ terradev provision -g A10G -n 2 --parallel 6
    Run: terradev execute -i <id> -c "python serve.py"
 ```
 
+---
+
 ## BYOAPI — Your Keys Stay Local
 
-Terradev never touches, stores, or proxies your cloud credentials through a third party.
-
-- `terradev configure --provider <name>` → keys stored in `~/.terradev/credentials.json`
-- Every API call goes directly from your machine to the cloud provider
-- No middleman, no shared credentials, no markup on pricing
-- Enterprise-ready: SOC2/HIPAA compliant credential handling
+This skill never sees or stores your API keys. All credentials remain on your machine and are passed directly to cloud providers. This is the secure way to do cloud automation.
 
 ## Supported Providers
 
 RunPod · Vast.ai · AWS · GCP · Azure · Lambda Labs · CoreWeave · TensorDock · Oracle Cloud · Crusoe Cloud · DigitalOcean · HyperStack
 
-## Links
+---
 
-- **Terradev CLI**: https://github.com/theoddden/Terradev
+*Built with ❤️ by the Terradev team*: https://github.com/theoddden/Terradev
 - **PyPI**: https://pypi.org/project/terradev-cli/
 - **Docs**: https://theodden.github.io/Terradev/
 
 ## License
 
-Business Source License 1.1 (BUSL-1.1)
+MIT License — see [LICENSE](LICENSE) file for details.
