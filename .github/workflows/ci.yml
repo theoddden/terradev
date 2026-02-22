@@ -38,22 +38,28 @@ jobs:
       run: |
         terradev --skip-onboarding status || true
 
-  # Test PyPI Package
-  test-pypi-package:
+  # Test Built Package (simulates PyPI install)
+  test-built-package:
     runs-on: ubuntu-latest
     needs: test-cli
     
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
 
-    - name: Install from PyPI
+    - name: Build and install package
       run: |
-        pip install terradev-cli
+        pip install build
+        cd terradev_cli
+        python -m build
+        pip install dist/*.whl
 
-    - name: Test PyPI installation
+    - name: Test package installation
       run: |
         terradev --version
         terradev --help
