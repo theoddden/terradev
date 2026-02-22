@@ -21,7 +21,7 @@ if requirements_file.exists():
 
 setup(
     name="terradev-cli",
-    version="3.1.2",
+    version="3.1.3",
     author="Terradev Team",
     author_email="team@terradev.com",
     description="Cross-cloud GPU provisioning with GitOps automation and HuggingFace Spaces deployment",
@@ -42,6 +42,21 @@ setup(
     ],
     python_requires=">=3.8",
     install_requires=requirements,
+    extras_require={
+        "aws": ["boto3>=1.34.0"],
+        "gcp": ["google-cloud-compute>=1.8.0"],
+        "azure": ["azure-mgmt-compute>=29.0.0", "azure-identity>=1.12.0"],
+        "oracle": ["oci>=2.118.0"],
+        "hf": ["huggingface-hub>=0.19.0"],
+        "all": [
+            "boto3>=1.34.0",
+            "google-cloud-compute>=1.8.0",
+            "azure-mgmt-compute>=29.0.0",
+            "azure-identity>=1.12.0",
+            "oci>=2.118.0",
+            "huggingface-hub>=0.19.0",
+        ],
+    },
     entry_points={
         "console_scripts": [
             "terradev=cli:cli",
