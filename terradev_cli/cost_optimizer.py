@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-InferX Cost Optimization Engine v2.9.6
+InferX Cost Optimization Engine v3.0.0
 AI-powered cost optimization for serverless inference workloads
 """
 

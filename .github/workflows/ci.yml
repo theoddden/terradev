@@ -36,7 +36,7 @@ jobs:
 
     - name: Test CLI commands
       run: |
-        python -m terradev_cli status
+        python -m terradev_cli --skip-onboarding status
 
   # Test PyPI Package
   test-pypi-package:
