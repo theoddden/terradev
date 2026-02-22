@@ -1,6 +1,6 @@
-# Terradev CLI v2.9.8
+# Terradev CLI v3.0.0
 
-BYOAPI: Cross-cloud GPU provisioning and cost optimization platform with GitOps automation.
+BYOAPI: Cross-cloud GPU provisioning and cost optimization platform with GitOps automation, *for stateless workloads*.
 
 ## Why Terradev?
 
@@ -202,6 +202,7 @@ Terradev never touches, stores, or proxies your cloud credentials through a thir
 | `terradev optimize` | Find cheaper alternatives for running instances |
 | `terradev run` | Provision + deploy Docker container + execute in one command |
 | `terradev hf-space` | **NEW:** One-click HuggingFace Spaces deployment |
+| `terradev inferx` | **NEW:** InferX serverless inference platform - <2s cold starts |
 | `terradev up` | **NEW:** Manifest cache + drift detection |
 | `terradev rollback` | **NEW:** Versioned rollback to any deployment |
 | `terradev manifests` | **NEW:** List cached deployment manifests |
@@ -234,6 +235,28 @@ terradev rollback my-training@v2
 
 # List all cached manifests
 terradev manifests --job my-training
+```
+
+### InferX Commands (NEW!)
+```bash
+# Start InferX serverless inference platform
+terradev inferx start --model-id meta-llama/Llama-2-7b-hf --hardware a10g
+
+# Deploy inference endpoint with auto-scaling
+terradev inferx deploy --endpoint my-llama-api --model-id microsoft/DialoGPT-medium \
+  --hardware t4 --max-concurrency 100
+
+# Get inference endpoint status and health
+terradev inferx status --endpoint my-llama-api
+
+# Route inference requests to optimal endpoint
+terradev inferx route --query "What is machine learning?" --model-type llm
+
+# Run failover tests for high availability
+terradev inferx failover --endpoint my-llama-api --test-load 1000
+
+# Get cost analysis for inference workloads
+terradev inferx cost-analysis --days 30 --endpoint my-llama-api
 ```
 
 ## Observability & ML Integrations
