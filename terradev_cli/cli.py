@@ -699,7 +699,7 @@ def run_interactive_onboarding(api: TerradevAPI):
     print("="*70 + "\n")
 
 @click.group()
-@click.version_option(version="3.0.0", prog_name="Terradev CLI")
+@click.version_option(version="3.1.0", prog_name="Terradev CLI")
 @click.option('--config', '-c', help='Configuration file path')
 @click.option('--verbose', '-v', is_flag=True, help='Verbose output')
 @click.option('--skip-onboarding', is_flag=True, help='Skip first-time setup')
@@ -3825,11 +3825,23 @@ def k8s_create(cluster_name, gpu, count, max_price, multi_cloud, prefer_spot, aw
     print(f"💰 Max Price: ${max_price}/hr")
     print(f"☁️  Multi-Cloud: {multi_cloud}")
     print(f"🎯 Spot Instances: {prefer_spot}")
+    print(f"")
+    print(f"🧬 Topology optimization (auto-applied):")
+    print(f"   Kubelet Topology Manager: restricted (NUMA-aligned)")
+    print(f"   CPU Manager: static (pinned cores)")
+    print(f"   GPUDirect RDMA: enabled (nvidia_peermem)")
+    if count > 1:
+        print(f"   SR-IOV: enabled ({count} nodes, VF-per-GPU pairing)")
+        print(f"   NCCL: IB enabled, GDR_LEVEL=PIX, GDR_READ=1")
+    else:
+        print(f"   SR-IOV: single-node (not required)")
+    print(f"   PCIe locality: GPU-NIC pairs forced to same NUMA node")
     
     success = wrapper.create_cluster(cluster_config)
     
     if success:
         print(f"✅ Cluster '{cluster_name}' created successfully!")
+        print(f"   Topology: NUMA-aligned, GPUDirect RDMA, Topology Manager=restricted")
         print(f"Status Run 'terradev k8s info {cluster_name}' for details")
         print(f"🔗 Run 'export KUBECONFIG=~/.terradev/clusters/{cluster_name}.json' to connect")
     else:

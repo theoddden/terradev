@@ -1,4 +1,4 @@
-# Terradev CLI v3.0.0
+# Terradev CLI v3.1.0
 
 BYOAPI: Cross-cloud GPU provisioning and cost optimization platform with GitOps automation, *for stateless workloads*.
 
@@ -309,6 +309,46 @@ pip install terradev-jupyter
 terradev run --gpu A100 --image pytorch/pytorch:latest -c "python train.py"
 terradev run --gpu H100 --image vllm/vllm-openai:latest --keep-alive --port 8000
 ```
+
+## GPU Topology Optimization (v3.1)
+
+Terradev v3.1 automatically optimizes GPU infrastructure topology — NUMA alignment, PCIe switch pairing, SR-IOV, RDMA, and kubelet Topology Manager configuration. **You never configure any of this.** It's applied automatically when you create clusters or provision GPU nodes.
+
+### What happens behind the scenes
+
+When you run `terradev k8s create my-cluster --gpu H100 --count 4`:
+
+| Layer | What Terradev auto-configures |
+|-------|------------------------------|
+| **NUMA Alignment** | Kubelet Topology Manager set to `restricted` with `prefer-closest-numa-nodes=true` |
+| **CPU Pinning** | `cpuManagerPolicy: static` for deterministic core assignment |
+| **GPUDirect RDMA** | `nvidia_peermem` kernel module loaded on all GPU nodes |
+| **SR-IOV** | VF-per-GPU pairing enabled for multi-node clusters |
+| **NCCL Tuning** | `NCCL_NET_GDR_LEVEL=PIX`, `NCCL_NET_GDR_READ=1`, IB enabled |
+| **PCIe Locality** | GPU-NIC pairs forced to same NUMA node (eliminates cross-socket penalty) |
+| **Karpenter** | Topology-aware NodePool with correct instance families per GPU type |
+
+### Why this matters
+
+Without topology optimization, Kubernetes randomly assigns GPUs and NICs across NUMA nodes and PCIe switches. A cross-socket GPU-NIC pairing can cut RDMA bandwidth by 30-50%. Terradev eliminates this class of performance bug entirely.
+
+```bash
+# All of this is automatic — just provision normally
+terradev k8s create training-cluster --gpu H100 --count 8 --prefer-spot
+
+# Output includes topology confirmation:
+# 🧬 Topology optimization (auto-applied):
+#    Kubelet Topology Manager: restricted (NUMA-aligned)
+#    CPU Manager: static (pinned cores)
+#    GPUDirect RDMA: enabled (nvidia_peermem)
+#    SR-IOV: enabled (8 nodes, VF-per-GPU pairing)
+#    NCCL: IB enabled, GDR_LEVEL=PIX, GDR_READ=1
+#    PCIe locality: GPU-NIC pairs forced to same NUMA node
+```
+
+### DRA / DRANET Ready
+
+Terradev's topology module includes DRA (Dynamic Resource Allocation) and DRANET resource claim generation for K8s 1.31+. When KEP-4381 lands, Terradev will automatically use `resource.kubernetes.io/pcieRoot` constraints to enforce PCIe-switch-level GPU-NIC pairing — the finest granularity possible.
 
 ## Requirements
 

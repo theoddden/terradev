@@ -21,7 +21,7 @@ if requirements_file.exists():
 
 setup(
     name="terradev-cli",
-    version="2.9.8",
+    version="3.1.0",
     author="Terradev Team",
     author_email="team@terradev.com",
     description="Cross-cloud GPU provisioning with GitOps automation and HuggingFace Spaces deployment",

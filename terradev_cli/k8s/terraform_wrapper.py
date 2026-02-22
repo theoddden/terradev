@@ -74,13 +74,36 @@ class TerraformWrapper:
             return json.load(f)
     
     def _create_terraform_vars(self, cluster_config: Dict) -> Dict:
-        """Create Terraform variables from cluster configuration"""
+        """Create Terraform variables from cluster configuration.
+
+        Topology optimization is applied automatically:
+          - Kubelet Topology Manager set to 'restricted' with prefer-closest-numa-nodes
+          - GPUDirect RDMA enabled via nvidia_peermem kernel module in userData
+          - SR-IOV enabled when multi-node GPU clusters are requested
+          - NCCL environment variables injected for optimal GPU-NIC pairing
+        """
         credentials = self._load_credentials()
-        
+
+        node_count = cluster_config["node_count"]
+        gpu_type = cluster_config["gpu_type"]
+
+        # Topology-aware defaults — users never need to set these
+        topology_config = {
+            "topology_manager_policy": "restricted",
+            "topology_manager_scope": "container",
+            "prefer_closest_numa": True,
+            "cpu_manager_policy": "static",
+            "enable_gpudirect_rdma": True,
+            "enable_sriov": node_count > 1,
+            "nccl_ib_disable": "0",
+            "nccl_net_gdr_read": "1",
+            "nccl_net_gdr_level": "PIX",
+        }
+
         vars = {
             "cluster_name": cluster_config["name"],
-            "gpu_type": cluster_config["gpu_type"],
-            "total_nodes": cluster_config["node_count"],
+            "gpu_type": gpu_type,
+            "total_nodes": node_count,
             "max_price_per_hour": cluster_config.get("max_price", 4.00),
             "prefer_spot": cluster_config.get("prefer_spot", True),
             "control_plane_type": cluster_config.get("control_plane", "eks"),
@@ -91,11 +114,22 @@ class TerraformWrapper:
             "kubernetes_version": cluster_config.get("k8s_version", "1.28"),
             "enable_monitoring": cluster_config.get("monitoring", True),
             "enable_logging": cluster_config.get("logging", True),
+            # Topology optimization (auto-applied)
+            "topology_manager_policy": topology_config["topology_manager_policy"],
+            "topology_manager_scope": topology_config["topology_manager_scope"],
+            "prefer_closest_numa": topology_config["prefer_closest_numa"],
+            "cpu_manager_policy": topology_config["cpu_manager_policy"],
+            "enable_gpudirect_rdma": topology_config["enable_gpudirect_rdma"],
+            "enable_sriov": topology_config["enable_sriov"],
+            "nccl_ib_disable": topology_config["nccl_ib_disable"],
+            "nccl_net_gdr_read": topology_config["nccl_net_gdr_read"],
+            "nccl_net_gdr_level": topology_config["nccl_net_gdr_level"],
             "tags": {
                 "Project": "Terradev",
                 "Cluster": cluster_config["name"],
-                "GPUType": cluster_config["gpu_type"],
-                "Environment": cluster_config.get("environment", "production")
+                "GPUType": gpu_type,
+                "Environment": cluster_config.get("environment", "production"),
+                "TopologyOptimized": "true",
             }
         }
         
